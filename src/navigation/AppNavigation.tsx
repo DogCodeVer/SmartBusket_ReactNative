@@ -4,11 +4,13 @@ import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import SignIn from '../screens/SignIn';
 import SignUp from '../screens/SignUp';
 import PasswordRecovery from '../screens/PasswordRecovery';
+import Home from '../screens/Home';
 
 export type RootStackParamList = {
 	SignIn: undefined;
 	SignUp: undefined;
 	PasswordRecovery: undefined;
+	Home: undefined;
 };
 
 const Stack = createNativeStackNavigator<RootStackParamList>();
@@ -29,6 +31,11 @@ const AppNavigator: React.FC = () => (
 			<Stack.Screen
 				name='PasswordRecovery'
 				component={PasswordRecovery}
+				options={{ headerShown: false }}
+			/>
+			<Stack.Screen
+				name='Home'
+				component={Home}
 				options={{ headerShown: false }}
 			/>
 		</Stack.Navigator>

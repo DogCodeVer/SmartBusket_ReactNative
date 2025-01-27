@@ -59,8 +59,16 @@ const SignIn: React.FC<Props> = ({ navigation }) => {
 					</Text>
 				</TouchableOpacity>
 			</View>
-			<TouchableOpacity style={styles.button}>
-				<Text style={styles.buttonText}>Войти</Text>
+			<TouchableOpacity
+				style={styles.button}
+				onPress={() => navigation.navigate('Home')}
+			>
+				<Text
+					style={styles.buttonText}
+					onPress={() => navigation.navigate('Home')}
+				>
+					Войти
+				</Text>
 			</TouchableOpacity>
 		</View>
 	);
