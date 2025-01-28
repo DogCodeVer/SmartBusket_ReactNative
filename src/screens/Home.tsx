@@ -88,9 +88,9 @@ const Home: React.FC<Props> = ({ navigation }) => {
 		image: string;
 	};
 	const SubCategories = ({ title, image }: SubCategoriesProps) => (
-		<View>
-			<Image source={{ uri: image }} />
-			<Text>{title}</Text>
+		<View style={styles.subcategoryBlock}>
+			<Text style={styles.title_sub}>{title}</Text>
+			<Image source={{ uri: image }} style={styles.image} />
 		</View>
 	);
 
@@ -116,8 +116,9 @@ const Home: React.FC<Props> = ({ navigation }) => {
 
 const styles = StyleSheet.create({
 	container: {
-		flex: 1,
+		// flex: 1,
 		marginTop: StatusBar.currentHeight || 0,
+		backgroundColor: '#FFFFFF',
 	},
 	loadingContainer: {
 		flex: 1,
@@ -125,20 +126,32 @@ const styles = StyleSheet.create({
 		alignItems: 'center',
 	},
 	title: {
-		fontSize: 24,
+		fontSize: 20,
 		fontWeight: 'bold',
 	},
-	listContainer: {
-		marginTop: 10,
-	},
 	categoryBlock: {
-		alignItems: 'center',
-		marginHorizontal: 10,
+		alignItems: 'flex-start',
+		marginHorizontal: 20,
+		paddingVertical: 10,
 	},
-	image: {
-		width: 80,
-		height: 80,
+	subcategoryBlock: {
+		marginTop: 10,
+		backgroundColor: '#F7FAFF',
 		borderRadius: 10,
+		marginRight: 10,
+		width: 108,
+		height: 150,
+	},
+
+	image: {
+		flex: 1,
+		borderRadius: 10,
+	},
+	title_sub: {
+		fontSize: 10,
+		fontWeight: 'bold',
+		padding: 10,
+		marginBottom: 15,
 	},
 	categoryName: {
 		marginTop: 5,

@@ -9,6 +9,7 @@ import {
 } from 'react-native';
 import { NativeStackScreenProps } from '@react-navigation/native-stack';
 import { RootStackParamList } from '../navigation/AppNavigation';
+import supabase from '../config/supabaseConfig';
 type Props = NativeStackScreenProps<RootStackParamList, 'SignIn'>;
 
 const SignIn: React.FC<Props> = ({ navigation }) => {
@@ -16,6 +17,14 @@ const SignIn: React.FC<Props> = ({ navigation }) => {
 	const [password, onChangePassword] = React.useState('');
 	const [isFocusedPassword, setIsFocusedPassword] = React.useState(false);
 	const [isFocusedEmail, setIsFocusedEmail] = React.useState(false);
+
+	const handleSignIn = async () => {
+		const { data, error } = await supabase.auth.signInWithPassword({
+			email: email,
+			password: password,
+		});
+		// navigation.navigate('Home');
+	};
 
 	return (
 		<View style={styles.container}>
@@ -63,10 +72,7 @@ const SignIn: React.FC<Props> = ({ navigation }) => {
 				style={styles.button}
 				onPress={() => navigation.navigate('Home')}
 			>
-				<Text
-					style={styles.buttonText}
-					onPress={() => navigation.navigate('Home')}
-				>
+				<Text style={styles.buttonText} onPress={() => handleSignIn}>
 					Войти
 				</Text>
 			</TouchableOpacity>
