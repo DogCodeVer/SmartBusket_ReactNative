@@ -5,12 +5,14 @@ import SignIn from '../screens/SignIn';
 import SignUp from '../screens/SignUp';
 import PasswordRecovery from '../screens/PasswordRecovery';
 import Home from '../screens/Home';
+import Categories from '../screens/Categories';
 
 export type RootStackParamList = {
 	SignIn: undefined;
 	SignUp: undefined;
 	PasswordRecovery: undefined;
 	Home: undefined;
+	Categories: { subcategoryId: number };
 };
 
 const Stack = createNativeStackNavigator<RootStackParamList>();
@@ -36,6 +38,11 @@ const AppNavigator: React.FC = () => (
 			<Stack.Screen
 				name='Home'
 				component={Home}
+				options={{ headerShown: false }}
+			/>
+			<Stack.Screen
+				name='Categories'
+				component={Categories}
 				options={{ headerShown: false }}
 			/>
 		</Stack.Navigator>

@@ -7,12 +7,14 @@ import {
 	Image,
 	ActivityIndicator,
 	StatusBar,
+	TextInput,
 } from 'react-native';
 import { NativeStackScreenProps } from '@react-navigation/native-stack';
 import { RootStackParamList } from '../navigation/AppNavigation';
 import { FlatList, GestureHandlerRootView } from 'react-native-gesture-handler';
 import supabase from '../config/supabaseConfig';
 import { SafeAreaProvider, SafeAreaView } from 'react-native-safe-area-context';
+import { Ionicons } from '@expo/vector-icons';
 
 type Props = NativeStackScreenProps<RootStackParamList, 'Home'>;
 
@@ -32,6 +34,7 @@ interface SubCategories {
 const Home: React.FC<Props> = ({ navigation }) => {
 	const [categories, setCategories] = useState<Category[]>([]);
 	const [loading, setLoading] = useState<boolean>(true);
+	const [searchText, setSearchText] = useState('');
 
 	useEffect(() => {
 		const fetchCategories = async () => {
@@ -74,10 +77,11 @@ const Home: React.FC<Props> = ({ navigation }) => {
 			<FlatList
 				data={subcategories}
 				renderItem={({ item }) => (
-					<SubCategories title={item.title} image={item.image} id={''} />
+					<SubCategories title={item.title} image={item.image} id={item.id} />
 				)}
 				keyExtractor={item => item.id}
-				horizontal
+				// horizontal
+				numColumns={3}
 			/>
 		</View>
 	);
@@ -87,17 +91,38 @@ const Home: React.FC<Props> = ({ navigation }) => {
 		title: string;
 		image: string;
 	};
-	const SubCategories = ({ title, image }: SubCategoriesProps) => (
-		<View style={styles.subcategoryBlock}>
+	const SubCategories = ({ title, image, id }: SubCategoriesProps) => (
+		<TouchableOpacity
+			style={styles.subcategoryBlock}
+			onPress={() =>
+				navigation.navigate('Categories', { subcategoryId: Number(id) })
+			}
+		>
 			<Text style={styles.title_sub}>{title}</Text>
 			<Image source={{ uri: image }} style={styles.image} />
-		</View>
+		</TouchableOpacity>
 	);
 
 	return (
 		<GestureHandlerRootView>
+			<StatusBar barStyle={'dark-content'} backgroundColor='#fff' />
 			<SafeAreaProvider>
 				<SafeAreaView style={styles.container}>
+					<View style={styles.searchbar}>
+						<Ionicons
+							name='search'
+							size={20}
+							color='#888'
+							style={styles.icon}
+						/>
+						<TextInput
+							style={styles.input}
+							placeholder='Искать товары'
+							placeholderTextColor='#999'
+							value={searchText}
+							onChangeText={setSearchText}
+						/>
+					</View>
 					<FlatList
 						data={categories}
 						renderItem={({ item }) => (
@@ -116,8 +141,9 @@ const Home: React.FC<Props> = ({ navigation }) => {
 
 const styles = StyleSheet.create({
 	container: {
-		// flex: 1,
-		marginTop: StatusBar.currentHeight || 0,
+		flex: 1,
+		paddingLeft: 20,
+		paddingRight: 20,
 		backgroundColor: '#FFFFFF',
 	},
 	loadingContainer: {
@@ -125,37 +151,54 @@ const styles = StyleSheet.create({
 		justifyContent: 'center',
 		alignItems: 'center',
 	},
+	searchbar: {
+		flexDirection: 'row',
+		alignItems: 'center',
+		backgroundColor: '#F7F7F7',
+		borderRadius: 16,
+		paddingHorizontal: 12,
+		height: 50,
+	},
+	icon: {
+		marginRight: 6,
+		color: '#878B93',
+	},
+	input: {
+		flex: 1,
+		fontSize: 14,
+		fontWeight: 500,
+	},
 	title: {
-		fontSize: 20,
-		fontWeight: 'bold',
+		fontSize: 18,
+		fontWeight: 700,
+		marginBottom: 10,
 	},
 	categoryBlock: {
-		alignItems: 'flex-start',
-		marginHorizontal: 20,
-		paddingVertical: 10,
+		marginTop: 16,
+		flexDirection: 'column',
 	},
 	subcategoryBlock: {
-		marginTop: 10,
-		backgroundColor: '#F7FAFF',
+		width: 108, // Или другой размер блока
+		height: 148, // Высота блока
+		backgroundColor: '#f5f5f5', // Цвет фона
 		borderRadius: 10,
 		marginRight: 10,
-		width: 108,
-		height: 150,
+		marginBottom: 10,
+		justifyContent: 'space-between', // Распределение элементов
+		alignItems: 'center', // Выравнивание по центру
 	},
 
 	image: {
-		flex: 1,
-		borderRadius: 10,
+		width: '100%',
+		height: 110,
+		resizeMode: 'cover',
+		borderRadius: 16,
+		alignSelf: 'flex-end',
 	},
 	title_sub: {
 		fontSize: 10,
-		fontWeight: 'bold',
-		padding: 10,
-		marginBottom: 15,
-	},
-	categoryName: {
-		marginTop: 5,
-		fontSize: 14,
+		fontWeight: 700,
+		padding: 8,
 	},
 });
 
