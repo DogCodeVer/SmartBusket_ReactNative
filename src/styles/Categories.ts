@@ -1,0 +1,76 @@
+import { StyleSheet } from 'react-native';
+
+export const styles = StyleSheet.create({
+	loadingContainer: {
+		flex: 1,
+		justifyContent: 'center',
+		alignItems: 'center',
+	},
+	container: {
+		flex: 1,
+		paddingLeft: 24,
+		paddingRight: 24,
+		backgroundColor: '#FFFFFF',
+	},
+	title: {
+		fontSize: 24,
+		fontWeight: 'bold',
+	},
+	appbar: {
+		flexDirection: 'row',
+		alignItems: 'center',
+	},
+	productCard: {
+		width: '30%',
+		paddingTop: 10,
+		paddingRight: 10,
+	},
+
+	productTitle: {
+		flex: 1, // Занимает доступное пространство
+		justifyContent: 'center', // Центрирует текст
+		textAlign: 'left',
+		fontSize: 12,
+		fontWeight: '700',
+		paddingTop: 4,
+	},
+	imageContainer: {
+		flex: 1,
+		justifyContent: 'flex-end', // Прижимает изображение вниз
+		alignItems: 'center', // Выравнивает изображение по центру
+		backgroundColor: '#F7FAFF',
+		borderRadius: 16,
+		padding: 10,
+	},
+
+	image: {
+		width: 80,
+		height: 80,
+		resizeMode: 'contain', // Чтобы изображение сохраняло пропорции
+	},
+	counterZero: {
+		flexDirection: 'row',
+		flex: 1,
+		justifyContent: 'space-evenly',
+		alignItems: 'center',
+		backgroundColor: '#2D323A0D',
+		borderRadius: 16,
+		padding: 8,
+	},
+	zeroButton: {
+		backgroundColor: '#FF726926',
+		borderRadius: 50,
+	},
+	addRemoveButton: {
+		backgroundColor: '#FFFFFF26',
+		borderRadius: 50,
+	},
+	counterNotZero: {
+		flexDirection: 'row',
+		flex: 1,
+		justifyContent: 'space-between',
+		backgroundColor: '#FF7269',
+		borderRadius: 16,
+		padding: 8,
+	},
+});

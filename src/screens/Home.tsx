@@ -16,6 +16,8 @@ import supabase from '../config/supabaseConfig';
 import { SafeAreaProvider, SafeAreaView } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
 
+import { styles } from '../styles/Home';
+
 type Props = NativeStackScreenProps<RootStackParamList, 'Home'>;
 
 interface Category {
@@ -99,7 +101,7 @@ const Home: React.FC<Props> = ({ navigation }) => {
 			}
 		>
 			<Text style={styles.title_sub}>{title}</Text>
-			<Image source={{ uri: image }} style={styles.image} />
+			<Image source={{ uri: 'https://jjji.ru/100x100' }} style={styles.image} />
 		</TouchableOpacity>
 	);
 
@@ -138,68 +140,5 @@ const Home: React.FC<Props> = ({ navigation }) => {
 		</GestureHandlerRootView>
 	);
 };
-
-const styles = StyleSheet.create({
-	container: {
-		flex: 1,
-		paddingLeft: 20,
-		paddingRight: 20,
-		backgroundColor: '#FFFFFF',
-	},
-	loadingContainer: {
-		flex: 1,
-		justifyContent: 'center',
-		alignItems: 'center',
-	},
-	searchbar: {
-		flexDirection: 'row',
-		alignItems: 'center',
-		backgroundColor: '#F7F7F7',
-		borderRadius: 16,
-		paddingHorizontal: 12,
-		height: 50,
-	},
-	icon: {
-		marginRight: 6,
-		color: '#878B93',
-	},
-	input: {
-		flex: 1,
-		fontSize: 14,
-		fontWeight: 500,
-	},
-	title: {
-		fontSize: 18,
-		fontWeight: 700,
-		marginBottom: 10,
-	},
-	categoryBlock: {
-		marginTop: 16,
-		flexDirection: 'column',
-	},
-	subcategoryBlock: {
-		width: 108, // Или другой размер блока
-		height: 148, // Высота блока
-		backgroundColor: '#f5f5f5', // Цвет фона
-		borderRadius: 10,
-		marginRight: 10,
-		marginBottom: 10,
-		justifyContent: 'space-between', // Распределение элементов
-		alignItems: 'center', // Выравнивание по центру
-	},
-
-	image: {
-		width: '100%',
-		height: 110,
-		resizeMode: 'cover',
-		borderRadius: 16,
-		alignSelf: 'flex-end',
-	},
-	title_sub: {
-		fontSize: 10,
-		fontWeight: 700,
-		padding: 8,
-	},
-});
 
 export default Home;

@@ -15,7 +15,9 @@ import { SafeAreaProvider, SafeAreaView } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
 import supabase from '../config/supabaseConfig';
 
-type Props = NativeStackScreenProps<RootStackParamList, 'Home'> & {
+import { styles } from '../styles/Categories';
+
+type Props = NativeStackScreenProps<RootStackParamList, 'Categories'> & {
 	id: number;
 };
 
@@ -96,37 +98,57 @@ const Categories: React.FC<Props> = ({ navigation, route }) => {
 		return (
 			<View style={styles.productCard}>
 				<View>
-					<View
-						style={{
-							padding: 14,
-							backgroundColor: '#F7FAFF',
-							borderRadius: 16,
-						}}
-					>
+					<View style={styles.imageContainer}>
 						<Image
-							source={{ uri: 'https://reactnative.dev/img/tiny_logo.png' }}
+							source={{
+								uri: 'https://ecqbyvpsbwrihodwwach.supabase.co/storage/v1/object/sign/subcategories_image/testProduct.png?token=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1cmwiOiJzdWJjYXRlZ29yaWVzX2ltYWdlL3Rlc3RQcm9kdWN0LnBuZyIsImlhdCI6MTczODI0NTE4MiwiZXhwIjoxNzY5NzgxMTgyfQ.-WpyqPGPhbS7IOOonoEaudAXTEKvH3POejnjV6VfhEc',
+							}}
 							style={styles.image}
 						/>
 					</View>
-					<Text>{title}</Text>
+					<Text style={styles.productTitle}>{title}</Text>
 					{quantity > 0 ? (
-						<View>
-							<TouchableOpacity onPress={decreaseCount}>
-								<Ionicons name='remove-circle' size={24} color='black' />
+						<View style={styles.counterNotZero}>
+							<TouchableOpacity
+								onPress={decreaseCount}
+								style={styles.addRemoveButton}
+							>
+								<Ionicons
+									name='remove'
+									size={20}
+									color='#fff'
+									style={{ margin: 2 }}
+								/>
 							</TouchableOpacity>
 							<Text>{quantity}</Text>
-							<TouchableOpacity onPress={increaseCount}>
-								<Ionicons name='add-circle' size={24} color='black' />
+							<TouchableOpacity
+								onPress={increaseCount}
+								style={styles.addRemoveButton}
+							>
+								<Ionicons
+									name='add'
+									size={20}
+									color='#fff'
+									style={{ margin: 2 }}
+								/>
 							</TouchableOpacity>
 						</View>
 					) : (
-						<View>
+						<View style={styles.counterZero}>
 							<TouchableOpacity style={{ display: 'none' }}>
-								<Ionicons name='remove-circle' size={24} color='black' />
+								<Ionicons name='remove-circle' size={20} color='#FF7269' />
 							</TouchableOpacity>
-							<Text>{price} руб.</Text>
-							<TouchableOpacity onPress={increaseCount}>
-								<Ionicons name='add-circle' size={24} color='black' />
+							<Text>~{price} ₽</Text>
+							<TouchableOpacity
+								onPress={increaseCount}
+								style={styles.zeroButton}
+							>
+								<Ionicons
+									name='add'
+									size={20}
+									color='#FF7269'
+									style={{ margin: 2 }}
+								/>
 							</TouchableOpacity>
 						</View>
 					)}
@@ -170,35 +192,5 @@ const Categories: React.FC<Props> = ({ navigation, route }) => {
 		</GestureHandlerRootView>
 	);
 };
-
-const styles = StyleSheet.create({
-	loadingContainer: {
-		flex: 1,
-		justifyContent: 'center',
-		alignItems: 'center',
-	},
-	container: {
-		flex: 1,
-		paddingLeft: 24,
-		paddingRight: 24,
-		backgroundColor: '#FFFFFF',
-	},
-	title: {
-		fontSize: 24,
-		fontWeight: 'bold',
-	},
-	appbar: {
-		flexDirection: 'row',
-		alignItems: 'center',
-	},
-	productCard: {
-		paddingTop: 10,
-		paddingRight: 10,
-	},
-	image: {
-		width: 100,
-		height: 100,
-	},
-});
 
 export default Categories;
