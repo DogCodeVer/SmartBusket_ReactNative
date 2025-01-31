@@ -6,13 +6,15 @@ import {
 	TouchableOpacity,
 	Image,
 } from 'react-native';
-import React, { useEffect, useState } from 'react';
+import React, { useCallback, useEffect, useRef, useState } from 'react';
 import { NativeStackScreenProps } from '@react-navigation/native-stack';
 import { RootStackParamList } from '../navigation/AppNavigation';
 import { FlatList, GestureHandlerRootView } from 'react-native-gesture-handler';
 import { StatusBar } from 'expo-status-bar';
 import { SafeAreaProvider, SafeAreaView } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
+import ProductCard from '../components/ProductCard';
+
 import supabase from '../config/supabaseConfig';
 
 import { styles } from '../styles/Categories';
@@ -40,6 +42,8 @@ const Categories: React.FC<Props> = ({ navigation, route }) => {
 
 	const [loading, setLoading] = useState<boolean>(true);
 	const [categories, setCategories] = useState<SubCategories[]>([]);
+	const [productCardView, setProductCardView] = useState<boolean>(false);
+	const [productId, setProductId] = useState<number>();
 
 	useEffect(() => {
 		const fetchCategories = async () => {
@@ -96,64 +100,65 @@ const Categories: React.FC<Props> = ({ navigation, route }) => {
 		const increaseCount = () => setQuantity(prev => prev + 1);
 		const decreaseCount = () => setQuantity(prev => (prev > 0 ? prev - 1 : 0));
 		return (
-			<View style={styles.productCard}>
-				<View>
-					<View style={styles.imageContainer}>
-						<Image
-							source={{
-								uri: 'https://ecqbyvpsbwrihodwwach.supabase.co/storage/v1/object/sign/subcategories_image/testProduct.png?token=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1cmwiOiJzdWJjYXRlZ29yaWVzX2ltYWdlL3Rlc3RQcm9kdWN0LnBuZyIsImlhdCI6MTczODI0NTE4MiwiZXhwIjoxNzY5NzgxMTgyfQ.-WpyqPGPhbS7IOOonoEaudAXTEKvH3POejnjV6VfhEc',
-							}}
-							style={styles.image}
-						/>
-					</View>
-					<Text style={styles.productTitle}>{title}</Text>
-					{quantity > 0 ? (
-						<View style={styles.counterNotZero}>
-							<TouchableOpacity
-								onPress={decreaseCount}
-								style={styles.addRemoveButton}
-							>
-								<Ionicons
-									name='remove'
-									size={20}
-									color='#fff'
-									style={{ margin: 2 }}
-								/>
-							</TouchableOpacity>
-							<Text>{quantity}</Text>
-							<TouchableOpacity
-								onPress={increaseCount}
-								style={styles.addRemoveButton}
-							>
-								<Ionicons
-									name='add'
-									size={20}
-									color='#fff'
-									style={{ margin: 2 }}
-								/>
-							</TouchableOpacity>
-						</View>
-					) : (
-						<View style={styles.counterZero}>
-							<TouchableOpacity style={{ display: 'none' }}>
-								<Ionicons name='remove-circle' size={20} color='#FF7269' />
-							</TouchableOpacity>
-							<Text>~{price} ₽</Text>
-							<TouchableOpacity
-								onPress={increaseCount}
-								style={styles.zeroButton}
-							>
-								<Ionicons
-									name='add'
-									size={20}
-									color='#FF7269'
-									style={{ margin: 2 }}
-								/>
-							</TouchableOpacity>
-						</View>
-					)}
+			<TouchableOpacity
+				style={styles.productCard}
+				onPress={() => {
+					setProductCardView(true);
+					setProductId(id);
+				}}
+			>
+				<View style={styles.imageContainer}>
+					<Image
+						source={{
+							uri: 'https://ecqbyvpsbwrihodwwach.supabase.co/storage/v1/object/sign/subcategories_image/testProduct.png?token=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1cmwiOiJzdWJjYXRlZ29yaWVzX2ltYWdlL3Rlc3RQcm9kdWN0LnBuZyIsImlhdCI6MTczODI0NTE4MiwiZXhwIjoxNzY5NzgxMTgyfQ.-WpyqPGPhbS7IOOonoEaudAXTEKvH3POejnjV6VfhEc',
+						}}
+						style={styles.image}
+					/>
 				</View>
-			</View>
+				<Text style={styles.productTitle}>{title}</Text>
+				{quantity > 0 ? (
+					<View style={styles.counterNotZero}>
+						<TouchableOpacity
+							onPress={decreaseCount}
+							style={styles.addRemoveButton}
+						>
+							<Ionicons
+								name='remove'
+								size={20}
+								color='#fff'
+								style={{ margin: 2 }}
+							/>
+						</TouchableOpacity>
+						<Text>{quantity}</Text>
+						<TouchableOpacity
+							onPress={increaseCount}
+							style={styles.addRemoveButton}
+						>
+							<Ionicons
+								name='add'
+								size={20}
+								color='#fff'
+								style={{ margin: 2 }}
+							/>
+						</TouchableOpacity>
+					</View>
+				) : (
+					<View style={styles.counterZero}>
+						<TouchableOpacity style={{ display: 'none' }}>
+							<Ionicons name='remove-circle' size={20} color='#FF7269' />
+						</TouchableOpacity>
+						<Text>~{price} ₽</Text>
+						<TouchableOpacity onPress={increaseCount} style={styles.zeroButton}>
+							<Ionicons
+								name='add'
+								size={20}
+								color='#FF7269'
+								style={{ margin: 2 }}
+							/>
+						</TouchableOpacity>
+					</View>
+				)}
+			</TouchableOpacity>
 		);
 	};
 
@@ -187,6 +192,13 @@ const Categories: React.FC<Props> = ({ navigation, route }) => {
 							/>
 						)}
 					/>
+
+					{productCardView ? (
+						<ProductCard
+							productId={productId}
+							setProductCardView={setProductCardView}
+						/>
+					) : null}
 				</SafeAreaView>
 			</SafeAreaProvider>
 		</GestureHandlerRootView>

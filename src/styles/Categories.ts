@@ -21,9 +21,10 @@ export const styles = StyleSheet.create({
 		alignItems: 'center',
 	},
 	productCard: {
-		width: '30%',
+		width: '33%',
 		paddingTop: 10,
 		paddingRight: 10,
+		justifyContent: 'space-evenly',
 	},
 
 	productTitle: {
@@ -40,12 +41,14 @@ export const styles = StyleSheet.create({
 		alignItems: 'center', // Выравнивает изображение по центру
 		backgroundColor: '#F7FAFF',
 		borderRadius: 16,
-		padding: 10,
+		paddingHorizontal: 10,
+		paddingTop: 16,
+		paddingBottom: 6,
 	},
 
 	image: {
-		width: 80,
-		height: 80,
+		width: 90,
+		height: 90,
 		resizeMode: 'contain', // Чтобы изображение сохраняло пропорции
 	},
 	counterZero: {
