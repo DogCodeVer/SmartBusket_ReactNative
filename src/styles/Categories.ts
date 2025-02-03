@@ -35,6 +35,13 @@ export const styles = StyleSheet.create({
 		fontWeight: '700',
 		paddingTop: 4,
 	},
+
+	valueText: {
+		color: '#878B93',
+		fontWeight: '700',
+		fontSize: 12,
+		paddingVertical: 4,
+	},
 	imageContainer: {
 		flex: 1,
 		justifyContent: 'flex-end', // Прижимает изображение вниз

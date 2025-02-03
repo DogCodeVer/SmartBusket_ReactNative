@@ -1,7 +1,6 @@
 import {
 	Text,
 	View,
-	StyleSheet,
 	ActivityIndicator,
 	TouchableOpacity,
 	Image,
@@ -35,6 +34,7 @@ const Categories: React.FC<Props> = ({ navigation, route }) => {
 	}
 
 	interface Product {
+		image: string;
 		id: number;
 		title: string;
 		price: number;
@@ -62,7 +62,6 @@ const Categories: React.FC<Props> = ({ navigation, route }) => {
 						product: item.products,
 					})) ?? []
 				);
-				console.log(data);
 			} catch (error) {
 				console.error('Error fetching categories:', error);
 			} finally {
@@ -87,6 +86,7 @@ const Categories: React.FC<Props> = ({ navigation, route }) => {
 		title: string;
 		price: string;
 		count?: number;
+		image: string;
 	};
 
 	const SubCategories = ({
@@ -94,6 +94,7 @@ const Categories: React.FC<Props> = ({ navigation, route }) => {
 		price,
 		id,
 		count = 0,
+		image,
 	}: SubCategoriesProps) => {
 		const [quantity, setQuantity] = useState(count);
 
@@ -110,12 +111,13 @@ const Categories: React.FC<Props> = ({ navigation, route }) => {
 				<View style={styles.imageContainer}>
 					<Image
 						source={{
-							uri: 'https://ecqbyvpsbwrihodwwach.supabase.co/storage/v1/object/sign/subcategories_image/testProduct.png?token=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1cmwiOiJzdWJjYXRlZ29yaWVzX2ltYWdlL3Rlc3RQcm9kdWN0LnBuZyIsImlhdCI6MTczODI0NTE4MiwiZXhwIjoxNzY5NzgxMTgyfQ.-WpyqPGPhbS7IOOonoEaudAXTEKvH3POejnjV6VfhEc',
+							uri: image,
 						}}
 						style={styles.image}
 					/>
 				</View>
 				<Text style={styles.productTitle}>{title}</Text>
+				<Text style={styles.valueText}>930 мл</Text>
 				{quantity > 0 ? (
 					<View style={styles.counterNotZero}>
 						<TouchableOpacity
@@ -129,7 +131,9 @@ const Categories: React.FC<Props> = ({ navigation, route }) => {
 								style={{ margin: 2 }}
 							/>
 						</TouchableOpacity>
-						<Text>{quantity}</Text>
+						<Text style={{ color: '#FFFFFF', fontWeight: '700', fontSize: 14 }}>
+							{quantity}
+						</Text>
 						<TouchableOpacity
 							onPress={increaseCount}
 							style={styles.addRemoveButton}
@@ -147,7 +151,9 @@ const Categories: React.FC<Props> = ({ navigation, route }) => {
 						<TouchableOpacity style={{ display: 'none' }}>
 							<Ionicons name='remove-circle' size={20} color='#FF7269' />
 						</TouchableOpacity>
-						<Text>~{price} ₽</Text>
+						<Text style={{ color: '#FF7269', fontWeight: '700', fontSize: 14 }}>
+							~{price} ₽
+						</Text>
 						<TouchableOpacity onPress={increaseCount} style={styles.zeroButton}>
 							<Ionicons
 								name='add'
@@ -189,6 +195,7 @@ const Categories: React.FC<Props> = ({ navigation, route }) => {
 								title={item.title}
 								price={item.price.toString()}
 								id={item.id}
+								image={item.image}
 							/>
 						)}
 					/>

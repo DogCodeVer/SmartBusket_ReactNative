@@ -39,7 +39,7 @@ export const styles = StyleSheet.create({
 		flexDirection: 'column',
 	},
 	subcategoryBlock: {
-		width: 108, // Или другой размер блока
+		width: '30%', // Или другой размер блока
 		height: 148, // Высота блока
 		backgroundColor: '#f5f5f5', // Цвет фона
 		borderRadius: 10,
@@ -50,8 +50,8 @@ export const styles = StyleSheet.create({
 	},
 
 	image: {
-		width: 108,
-		height: 112,
+		width: '100%',
+		height: 100,
 		resizeMode: 'cover',
 		borderBottomLeftRadius: 16,
 		borderBottomRightRadius: 16,

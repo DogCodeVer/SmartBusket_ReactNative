@@ -1,9 +1,17 @@
-import React, { useCallback, useRef } from 'react';
-import { View, Text, Image, TouchableOpacity } from 'react-native';
+import React, { useCallback, useEffect, useRef, useState } from 'react';
+import {
+	View,
+	Text,
+	Image,
+	TouchableOpacity,
+	ActivityIndicator,
+} from 'react-native';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import BottomSheet, { BottomSheetView } from '@gorhom/bottom-sheet';
 import { Ionicons } from '@expo/vector-icons';
 import { styles } from '../styles/ProductCard';
+
+import supabase from '../config/supabaseConfig';
 
 type ProductCardProps = {
 	productId: number | undefined;
@@ -14,11 +22,83 @@ const ProductCard: React.FC<ProductCardProps> = ({
 	productId,
 	setProductCardView,
 }) => {
+	interface Product {
+		id: number;
+		title: string;
+		value: string;
+		price: number;
+	}
+
+	interface ProductDesc {
+		BGU: {
+			calories: number;
+			proteins: number;
+			fats: number;
+			carbohydrates: number;
+		};
+		compound: string;
+		condition: string;
+	}
+
+	const [loading, setLoading] = useState<boolean>(true);
+	const [product, setProduct] = useState<Product>();
+	const [productDesc, setProductDesc] = useState<ProductDesc>();
 	const bottomSheetRef = useRef<BottomSheet>(null);
 
 	const handleSheetChanges = useCallback((index: number) => {
 		console.log('handleSheetChanges', index);
 	}, []);
+
+	useEffect(() => {
+		const fetchProduct = async () => {
+			try {
+				const { data, error } = await supabase
+					.from('products')
+					.select(
+						'id, title, value, price, product_desc(BGU, compound, condition)'
+					)
+					.eq('id', productId);
+				if (error) {
+					throw error;
+				}
+				if (data && data.length > 0) {
+					const item = data[0];
+					setProduct({
+						id: item.id,
+						title: item.title,
+						value: item.value,
+						price: item.price,
+					});
+					const BGU = item.product_desc[0]?.BGU || {};
+					setProductDesc({
+						BGU: {
+							calories: parseFloat(BGU.calories) || 0,
+							proteins: parseFloat(BGU.proteins) || 0,
+							fats: parseFloat(BGU.fats) || 0,
+							carbohydrates: parseFloat(BGU.carbohydrates) || 0,
+						},
+						compound: item.product_desc[0]?.compound,
+						condition: item.product_desc[0]?.condition,
+					});
+				} else {
+					setProduct(undefined);
+				}
+			} catch (error) {
+				console.error('Error fetching categories:', error);
+			} finally {
+				setLoading(false);
+			}
+		};
+		fetchProduct();
+	}, []);
+
+	if (loading) {
+		return (
+			<View style={styles.loadingContainer}>
+				<ActivityIndicator size='large' color='#0000ff' />
+			</View>
+		);
+	}
 
 	return (
 		<GestureHandlerRootView style={styles.container}>
@@ -50,10 +130,8 @@ const ProductCard: React.FC<ProductCardProps> = ({
 						</TouchableOpacity>
 					</View>
 					<View style={styles.productInfo}>
-						<Text style={styles.textTilte}>
-							Молоко топленое Простоквашино, 3.2%
-						</Text>
-						<Text style={styles.textTilteGrey}>930 мл</Text>
+						<Text style={styles.textTilte}>{product?.title}</Text>
+						<Text style={styles.textTilteGrey}>{product?.value}</Text>
 						<View style={styles.divideLine} />
 						<View>
 							<Text style={styles.textTitleSmall}>На 100 г</Text>
@@ -64,19 +142,25 @@ const ProductCard: React.FC<ProductCardProps> = ({
 								}}
 							>
 								<View>
-									<Text style={styles.textBGU}>0</Text>
+									<Text style={styles.textBGU}>
+										{productDesc?.BGU.calories}
+									</Text>
 									<Text style={styles.textTitleSmall}>ккал</Text>
 								</View>
 								<View>
-									<Text style={styles.textBGU}>0</Text>
+									<Text style={styles.textBGU}>
+										{productDesc?.BGU.proteins}
+									</Text>
 									<Text style={styles.textTitleSmall}>белки</Text>
 								</View>
 								<View>
-									<Text style={styles.textBGU}>0</Text>
+									<Text style={styles.textBGU}>{productDesc?.BGU.fats}</Text>
 									<Text style={styles.textTitleSmall}>жиры</Text>
 								</View>
 								<View>
-									<Text style={styles.textBGU}>0</Text>
+									<Text style={styles.textBGU}>
+										{productDesc?.BGU.carbohydrates}
+									</Text>
 									<Text style={styles.textTitleSmall}>углеводы</Text>
 								</View>
 							</View>
@@ -84,19 +168,14 @@ const ProductCard: React.FC<ProductCardProps> = ({
 						</View>
 						<View style={{ marginBottom: 10 }}>
 							<Text style={styles.textTitleSmall}>Состав</Text>
-							<Text style={styles.textDefault}>
-								Очищенная и умягченная вода, белки, жиры, углеводы, минералы,
-								витамины, ароматизатор,
-							</Text>
+							<Text style={styles.textDefault}>{productDesc?.compound}</Text>
 						</View>
 						<View style={{ marginBottom: 20 }}>
 							<Text style={styles.textTitleSmall}>Срок и условия хранения</Text>
-							<Text style={styles.textDefault}>
-								3 месяца, При температуре от 0°C до +6°С
-							</Text>
+							<Text style={styles.textDefault}>{productDesc?.condition}</Text>
 						</View>
 						<View style={styles.addCartBlock}>
-							<Text style={styles.priceText}>90 ₽</Text>
+							<Text style={styles.priceText}>{product?.price} ₽</Text>
 							<TouchableOpacity style={styles.addCartButton}>
 								<Text style={styles.buttonText}>Добавить в корзину</Text>
 							</TouchableOpacity>

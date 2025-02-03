@@ -2,7 +2,6 @@ import React, { useEffect, useState } from 'react';
 import {
 	View,
 	Text,
-	StyleSheet,
 	TouchableOpacity,
 	Image,
 	ActivityIndicator,
@@ -101,7 +100,7 @@ const Home: React.FC<Props> = ({ navigation }) => {
 			}
 		>
 			<Text style={styles.title_sub}>{title}</Text>
-			<Image source={{ uri: 'https://jjji.ru/100x100' }} style={styles.image} />
+			<Image source={{ uri: image }} style={styles.image} />
 		</TouchableOpacity>
 	);
 
