@@ -5,7 +5,7 @@ import {
 	TouchableOpacity,
 	Image,
 } from 'react-native';
-import React, { useCallback, useEffect, useRef, useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { NativeStackScreenProps } from '@react-navigation/native-stack';
 import { RootStackParamList } from '../navigation/AppNavigation';
 import { FlatList, GestureHandlerRootView } from 'react-native-gesture-handler';
@@ -13,10 +13,11 @@ import { StatusBar } from 'expo-status-bar';
 import { SafeAreaProvider, SafeAreaView } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
 import ProductCard from '../components/ProductCard';
-
 import supabase from '../config/supabaseConfig';
-
 import { styles } from '../styles/Categories';
+import { addToCart, removeFromCart, getCart } from '../utils/cartStore';
+import CartButton from '../components/CartButton';
+import { subscribeToCartUpdates } from '../utils/cartEventEmitter';
 
 type Props = NativeStackScreenProps<RootStackParamList, 'Categories'> & {
 	id: number;
@@ -34,6 +35,7 @@ const Categories: React.FC<Props> = ({ navigation, route }) => {
 	}
 
 	interface Product {
+		value: string;
 		image: string;
 		id: number;
 		title: string;
@@ -42,6 +44,7 @@ const Categories: React.FC<Props> = ({ navigation, route }) => {
 
 	const [loading, setLoading] = useState<boolean>(true);
 	const [categories, setCategories] = useState<SubCategories[]>([]);
+	const [cart, setCart] = useState<{ id: number; quantity: number }[]>([]);
 	const [productCardView, setProductCardView] = useState<boolean>(false);
 	const [productId, setProductId] = useState<number>();
 
@@ -52,9 +55,8 @@ const Categories: React.FC<Props> = ({ navigation, route }) => {
 					.from('subcategories')
 					.select('id, title, products(*)')
 					.eq('id', subcategoryId);
-				if (error) {
-					throw error;
-				}
+				if (error) throw error;
+
 				setCategories(
 					data?.map((item: any) => ({
 						id: item.id,
@@ -63,14 +65,27 @@ const Categories: React.FC<Props> = ({ navigation, route }) => {
 					})) ?? []
 				);
 			} catch (error) {
-				console.error('Error fetching categories:', error);
+				console.error('Ошибка при получении категорий:', error);
 			} finally {
 				setLoading(false);
 			}
 		};
-		// console.log('categories', JSON.stringify(categories, null, 2));
+
+		const loadCart = async () => {
+			const storedCart = await getCart();
+			setCart(storedCart);
+		};
 
 		fetchCategories();
+		loadCart();
+
+		// Подписка на обновления корзины
+		const unsubscribe = subscribeToCartUpdates(loadCart);
+
+		// Отписка при размонтировании
+		return () => {
+			unsubscribe();
+		};
 	}, []);
 
 	if (loading) {
@@ -81,47 +96,55 @@ const Categories: React.FC<Props> = ({ navigation, route }) => {
 		);
 	}
 
-	type SubCategoriesProps = {
-		id: number;
-		title: string;
-		price: string;
-		count?: number;
-		image: string;
-	};
-
 	const SubCategories = ({
 		title,
 		price,
 		id,
-		count = 0,
 		image,
-	}: SubCategoriesProps) => {
-		const [quantity, setQuantity] = useState(count);
+		value,
+	}: {
+		id: number;
+		value: string;
+		title: string;
+		price: string;
+		image: string;
+	}) => {
+		// Получаем количество товара из глобального состояния `cart`
+		const quantity = cart.find(item => item.id === id)?.quantity || 0;
 
-		const increaseCount = () => setQuantity(prev => prev + 1);
-		const decreaseCount = () => setQuantity(prev => (prev > 0 ? prev - 1 : 0));
+		const handleAddToCart = async () => {
+			await addToCart({ id, title, price, image });
+			const updatedCart = await getCart(); // Загружаем обновленные данные корзины
+			setCart(updatedCart);
+		};
+
+		const handleRemoveFromCart = async () => {
+			if (quantity > 0) {
+				await removeFromCart(id);
+				const updatedCart = await getCart(); // Загружаем обновленные данные корзины
+				setCart(updatedCart);
+			}
+		};
+
 		return (
-			<TouchableOpacity
-				style={styles.productCard}
-				onPress={() => {
-					setProductCardView(true);
-					setProductId(id);
-				}}
-			>
-				<View style={styles.imageContainer}>
-					<Image
-						source={{
-							uri: image,
-						}}
-						style={styles.image}
-					/>
-				</View>
-				<Text style={styles.productTitle}>{title}</Text>
-				<Text style={styles.valueText}>930 мл</Text>
+			<View style={styles.productCard}>
+				<TouchableOpacity
+					onPress={() => {
+						setProductCardView(true);
+						setProductId(id);
+					}}
+				>
+					<View style={styles.imageContainer}>
+						<Image source={{ uri: image }} style={styles.image} />
+					</View>
+					<Text style={styles.productTitle}>{title}</Text>
+					<Text style={styles.valueText}>{value}</Text>
+				</TouchableOpacity>
+
 				{quantity > 0 ? (
 					<View style={styles.counterNotZero}>
 						<TouchableOpacity
-							onPress={decreaseCount}
+							onPress={handleRemoveFromCart}
 							style={styles.addRemoveButton}
 						>
 							<Ionicons
@@ -135,7 +158,7 @@ const Categories: React.FC<Props> = ({ navigation, route }) => {
 							{quantity}
 						</Text>
 						<TouchableOpacity
-							onPress={increaseCount}
+							onPress={handleAddToCart}
 							style={styles.addRemoveButton}
 						>
 							<Ionicons
@@ -148,13 +171,13 @@ const Categories: React.FC<Props> = ({ navigation, route }) => {
 					</View>
 				) : (
 					<View style={styles.counterZero}>
-						<TouchableOpacity style={{ display: 'none' }}>
-							<Ionicons name='remove-circle' size={20} color='#FF7269' />
-						</TouchableOpacity>
 						<Text style={{ color: '#FF7269', fontWeight: '700', fontSize: 14 }}>
 							~{price} ₽
 						</Text>
-						<TouchableOpacity onPress={increaseCount} style={styles.zeroButton}>
+						<TouchableOpacity
+							onPress={handleAddToCart}
+							style={styles.zeroButton}
+						>
 							<Ionicons
 								name='add'
 								size={20}
@@ -164,7 +187,7 @@ const Categories: React.FC<Props> = ({ navigation, route }) => {
 						</TouchableOpacity>
 					</View>
 				)}
-			</TouchableOpacity>
+			</View>
 		);
 	};
 
@@ -187,6 +210,7 @@ const Categories: React.FC<Props> = ({ navigation, route }) => {
 							</Text>
 						))}
 					</View>
+
 					<FlatList
 						numColumns={3}
 						data={categories.flatMap(category => category.product)}
@@ -196,16 +220,19 @@ const Categories: React.FC<Props> = ({ navigation, route }) => {
 								price={item.price.toString()}
 								id={item.id}
 								image={item.image}
+								value={item.value}
 							/>
 						)}
+						keyExtractor={item => item.id.toString()}
 					/>
-
-					{productCardView ? (
+					{productCardView && (
 						<ProductCard
 							productId={productId}
 							setProductCardView={setProductCardView}
 						/>
-					) : null}
+					)}
+					{/* Показываем кнопку корзины только если в ней есть товары */}
+					{cart.length > 0 && <CartButton />}
 				</SafeAreaView>
 			</SafeAreaProvider>
 		</GestureHandlerRootView>

@@ -16,6 +16,9 @@ import { SafeAreaProvider, SafeAreaView } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
 
 import { styles } from '../styles/Home';
+import CartButton from '../components/CartButton';
+import { getCart } from '../utils/cartStore';
+import { subscribeToCartUpdates } from '../utils/cartEventEmitter';
 
 type Props = NativeStackScreenProps<RootStackParamList, 'Home'>;
 
@@ -36,6 +39,7 @@ const Home: React.FC<Props> = ({ navigation }) => {
 	const [categories, setCategories] = useState<Category[]>([]);
 	const [loading, setLoading] = useState<boolean>(true);
 	const [searchText, setSearchText] = useState('');
+	const [cartHasItems, setCartHasItems] = useState(false);
 
 	useEffect(() => {
 		const fetchCategories = async () => {
@@ -60,7 +64,25 @@ const Home: React.FC<Props> = ({ navigation }) => {
 		};
 
 		fetchCategories();
-		console.log('categories', JSON.stringify(categories, null, 2));
+	}, []);
+
+	// Функция проверки корзины
+	const checkCart = async () => {
+		const cart = await getCart();
+		setCartHasItems(cart.length > 0);
+	};
+
+	useEffect(() => {
+		// Проверяем корзину при загрузке
+		checkCart();
+
+		// Подписываемся на обновления корзины
+		const unsubscribe = subscribeToCartUpdates(checkCart);
+
+		// Отписываемся при размонтировании компонента
+		return () => {
+			unsubscribe();
+		};
 	}, []);
 
 	if (loading) {
@@ -81,7 +103,6 @@ const Home: React.FC<Props> = ({ navigation }) => {
 					<SubCategories title={item.title} image={item.image} id={item.id} />
 				)}
 				keyExtractor={item => item.id}
-				// horizontal
 				numColumns={3}
 			/>
 		</View>
@@ -134,6 +155,9 @@ const Home: React.FC<Props> = ({ navigation }) => {
 						)}
 						keyExtractor={item => item.id}
 					/>
+
+					{/* Показываем кнопку корзины только если в корзине есть товары */}
+					{cartHasItems && <CartButton />}
 				</SafeAreaView>
 			</SafeAreaProvider>
 		</GestureHandlerRootView>
