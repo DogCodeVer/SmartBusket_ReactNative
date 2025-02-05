@@ -1,86 +1,83 @@
-import React from 'react';
-import {
-	View,
-	Text,
-	Button,
-	StyleSheet,
-	TextInput,
-	TouchableOpacity,
-} from 'react-native';
-import { NativeStackScreenProps } from '@react-navigation/native-stack';
-import { RootStackParamList } from '../navigation/AppNavigation';
-import supabase from '../config/supabaseConfig';
+import React, {useState} from 'react'
+import {View, Text, TextInput, TouchableOpacity, Alert} from 'react-native'
+import {NativeStackScreenProps} from '@react-navigation/native-stack'
+import {RootStackParamList} from '../navigation/AppNavigation'
+import supabase from '../config/supabaseConfig'
+import {styles} from '../styles/SignIn'
 
-import { styles } from '../styles/SignIn';
+type Props = NativeStackScreenProps<RootStackParamList, 'SignIn'>
 
-type Props = NativeStackScreenProps<RootStackParamList, 'SignIn'>;
+const SignIn: React.FC<Props> = ({navigation}) => {
+  const [email, setEmail] = useState('')
+  const [password, setPassword] = useState('')
+  const [isFocusedPassword, setIsFocusedPassword] = useState(false)
+  const [isFocusedEmail, setIsFocusedEmail] = useState(false)
+  const [loading, setLoading] = useState(false)
 
-const SignIn: React.FC<Props> = ({ navigation }) => {
-	const [email, onChangeEmail] = React.useState('');
-	const [password, onChangePassword] = React.useState('');
-	const [isFocusedPassword, setIsFocusedPassword] = React.useState(false);
-	const [isFocusedEmail, setIsFocusedEmail] = React.useState(false);
+  const handleSignIn = async () => {
+    if (!email || !password) {
+      Alert.alert('Ошибка', 'Введите email и пароль')
+      return
+    }
 
-	const handleSignIn = async () => {
-		const { data, error } = await supabase.auth.signInWithPassword({
-			email: email,
-			password: password,
-		});
-		// navigation.navigate('Home');
-	};
+    setLoading(true)
+    const {error} = await supabase.auth.signInWithPassword({
+      email,
+      password,
+    })
 
-	return (
-		<View style={styles.container}>
-			<Text style={styles.title}>Авторизация</Text>
+    setLoading(false)
 
-			<TextInput
-				style={[styles.input, isFocusedEmail && styles.inputFocused]}
-				onFocus={() => setIsFocusedEmail(true)}
-				onBlur={() => setIsFocusedEmail(false)}
-				placeholder='Email'
-				placeholderTextColor='#999'
-				onChangeText={onChangeEmail}
-				value={email}
-			/>
-			<TextInput
-				style={[styles.input, isFocusedPassword && styles.inputFocused]}
-				onFocus={() => setIsFocusedPassword(true)}
-				onBlur={() => setIsFocusedPassword(false)}
-				placeholder='Пароль'
-				placeholderTextColor='#999'
-				secureTextEntry
-				onChangeText={onChangePassword}
-				value={password}
-			/>
+    if (error) {
+      Alert.alert('Ошибка авторизации', error.message)
+    } else {
+      navigation.replace('Home') // Переход без возможности возврата на экран входа
+    }
+  }
 
-			<View style={styles.footer}>
-				<TouchableOpacity>
-					<Text
-						style={styles.footerText}
-						onPress={() => navigation.navigate('PasswordRecovery')}
-					>
-						Забыли пароль?
-					</Text>
-				</TouchableOpacity>
-				<TouchableOpacity>
-					<Text
-						style={styles.footerText}
-						onPress={() => navigation.navigate('SignUp')}
-					>
-						Регистрация
-					</Text>
-				</TouchableOpacity>
-			</View>
-			<TouchableOpacity
-				style={styles.button}
-				onPress={() => navigation.navigate('Home')}
-			>
-				<Text style={styles.buttonText} onPress={() => handleSignIn}>
-					Войти
-				</Text>
-			</TouchableOpacity>
-		</View>
-	);
-};
+  return (
+    <View style={styles.container}>
+      <Text style={styles.title}>Авторизация</Text>
 
-export default SignIn;
+      <TextInput
+        style={[styles.input, isFocusedEmail && styles.inputFocused]}
+        onFocus={() => setIsFocusedEmail(true)}
+        onBlur={() => setIsFocusedEmail(false)}
+        placeholder="Email"
+        placeholderTextColor="#999"
+        onChangeText={setEmail}
+        value={email}
+        keyboardType="email-address"
+        autoCapitalize="none"
+      />
+      <TextInput
+        style={[styles.input, isFocusedPassword && styles.inputFocused]}
+        onFocus={() => setIsFocusedPassword(true)}
+        onBlur={() => setIsFocusedPassword(false)}
+        placeholder="Пароль"
+        placeholderTextColor="#999"
+        secureTextEntry
+        onChangeText={setPassword}
+        value={password}
+      />
+
+      <View style={styles.footer}>
+        <TouchableOpacity onPress={() => navigation.navigate('PasswordRecovery')}>
+          <Text style={styles.footerText}>Забыли пароль?</Text>
+        </TouchableOpacity>
+        <TouchableOpacity onPress={() => navigation.navigate('SignUp')}>
+          <Text style={styles.footerText}>Регистрация</Text>
+        </TouchableOpacity>
+      </View>
+
+      <TouchableOpacity
+        style={[styles.button, loading && styles.buttonDisabled]}
+        onPress={handleSignIn}
+        disabled={loading}>
+        <Text style={styles.buttonText}>{loading ? 'Вход...' : 'Войти'}</Text>
+      </TouchableOpacity>
+    </View>
+  )
+}
+
+export default SignIn
