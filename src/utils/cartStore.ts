@@ -16,6 +16,7 @@ export const addToCart = async (product: {
 	title?: string;
 	price?: string;
 	image?: string;
+	value?: string;
 }) => {
 	try {
 		const cart = await getCart();

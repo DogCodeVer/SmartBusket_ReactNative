@@ -3,8 +3,14 @@ import { View, Text, TouchableOpacity } from 'react-native';
 import { styles } from '../styles/CartButton';
 import { getCartTotal } from '../utils/cartStore';
 import { subscribeToCartUpdates } from '../utils/cartEventEmitter';
+import { useNavigation } from '@react-navigation/native';
+import { NativeStackNavigationProp } from '@react-navigation/native-stack';
+import { RootStackParamList } from '../navigation/AppNavigation';
 
 const CartButton: React.FC = () => {
+	const navigation =
+		useNavigation<NativeStackNavigationProp<RootStackParamList>>();
+
 	const [cartTotal, setCartTotal] = useState(0);
 
 	const fetchTotal = async () => {
@@ -26,7 +32,10 @@ const CartButton: React.FC = () => {
 	}, []);
 
 	return (
-		<TouchableOpacity style={styles.cartButton}>
+		<TouchableOpacity
+			style={styles.cartButton}
+			onPress={() => navigation.navigate('Basket')}
+		>
 			<Text style={styles.text}>Корзина</Text>
 			<Text style={styles.text}>{cartTotal} ₽</Text>
 		</TouchableOpacity>

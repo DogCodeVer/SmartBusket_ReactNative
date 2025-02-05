@@ -113,4 +113,24 @@ export const styles = StyleSheet.create({
 		fontSize: 14,
 		fontWeight: '700',
 	},
+	quantityPicker: {
+		flexDirection: 'row',
+		justifyContent: 'space-between',
+		alignItems: 'center',
+		backgroundColor: '#FFFFFF',
+		borderRadius: 32,
+		paddingHorizontal: 12,
+	},
+	textQuantity: {
+		fontSize: 14,
+		fontWeight: 700,
+		color: '#FF7269',
+		paddingHorizontal: 16,
+		paddingVertical: 12,
+	},
+	quantityButton: {
+		borderRadius: 32,
+		backgroundColor: '#FF726926',
+		padding: 4,
+	},
 });

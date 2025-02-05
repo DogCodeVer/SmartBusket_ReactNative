@@ -59,6 +59,7 @@ export const styles = StyleSheet.create({
 		resizeMode: 'contain', // Чтобы изображение сохраняло пропорции
 	},
 	counterZero: {
+		maxHeight: 40,
 		flexDirection: 'row',
 		flex: 1,
 		justifyContent: 'space-evenly',
@@ -76,6 +77,7 @@ export const styles = StyleSheet.create({
 		borderRadius: 50,
 	},
 	counterNotZero: {
+		maxHeight: 40,
 		flexDirection: 'row',
 		flex: 1,
 		justifyContent: 'space-between',

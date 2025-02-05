@@ -113,7 +113,7 @@ const Categories: React.FC<Props> = ({ navigation, route }) => {
 		const quantity = cart.find(item => item.id === id)?.quantity || 0;
 
 		const handleAddToCart = async () => {
-			await addToCart({ id, title, price, image });
+			await addToCart({ id, title, price, image, value });
 			const updatedCart = await getCart(); // Загружаем обновленные данные корзины
 			setCart(updatedCart);
 		};
@@ -137,7 +137,13 @@ const Categories: React.FC<Props> = ({ navigation, route }) => {
 					<View style={styles.imageContainer}>
 						<Image source={{ uri: image }} style={styles.image} />
 					</View>
-					<Text style={styles.productTitle}>{title}</Text>
+					<Text
+						style={styles.productTitle}
+						numberOfLines={1}
+						ellipsizeMode='tail'
+					>
+						{title}
+					</Text>
 					<Text style={styles.valueText}>{value}</Text>
 				</TouchableOpacity>
 

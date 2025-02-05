@@ -12,6 +12,7 @@ import { Ionicons } from '@expo/vector-icons';
 import { styles } from '../styles/ProductCard';
 
 import supabase from '../config/supabaseConfig';
+import { addToCart, getCart, removeFromCart } from '../utils/cartStore';
 
 type ProductCardProps = {
 	productId: number | undefined;
@@ -26,7 +27,8 @@ const ProductCard: React.FC<ProductCardProps> = ({
 		id: number;
 		title: string;
 		value: string;
-		price: number;
+		price: string;
+		image: string;
 	}
 
 	interface ProductDesc {
@@ -44,18 +46,20 @@ const ProductCard: React.FC<ProductCardProps> = ({
 	const [product, setProduct] = useState<Product>();
 	const [productDesc, setProductDesc] = useState<ProductDesc>();
 	const bottomSheetRef = useRef<BottomSheet>(null);
+	const [cart, setCart] = useState<{ id: number; quantity: number }[]>([]);
 
 	const handleSheetChanges = useCallback((index: number) => {
 		console.log('handleSheetChanges', index);
 	}, []);
 
+	// Загрузка данных продукта
 	useEffect(() => {
 		const fetchProduct = async () => {
 			try {
 				const { data, error } = await supabase
 					.from('products')
 					.select(
-						'id, title, value, price, product_desc(BGU, compound, condition)'
+						'id, title, value, price, image, product_desc(BGU, compound, condition)'
 					)
 					.eq('id', productId);
 				if (error) {
@@ -68,6 +72,7 @@ const ProductCard: React.FC<ProductCardProps> = ({
 						title: item.title,
 						value: item.value,
 						price: item.price,
+						image: item.image,
 					});
 					const BGU = item.product_desc[0]?.BGU || {};
 					setProductDesc({
@@ -84,13 +89,46 @@ const ProductCard: React.FC<ProductCardProps> = ({
 					setProduct(undefined);
 				}
 			} catch (error) {
-				console.error('Error fetching categories:', error);
+				console.error('Error fetching product:', error);
 			} finally {
 				setLoading(false);
 			}
 		};
 		fetchProduct();
 	}, []);
+
+	// Загрузка корзины при монтировании и обновлении корзины
+	useEffect(() => {
+		const loadCart = async () => {
+			const cartData = await getCart();
+			setCart(cartData);
+		};
+		loadCart();
+	}, []);
+
+	const quantity = cart.find(item => item.id === productId)?.quantity || 0;
+
+	const handleAddToCart = async () => {
+		if (product?.id !== undefined) {
+			await addToCart({
+				id: product.id,
+				title: product.title,
+				price: product.price,
+				image: product.image,
+				value: product.value,
+			});
+			const updatedCart = await getCart();
+			setCart(updatedCart);
+		}
+	};
+
+	const handleRemoveFromCart = async () => {
+		if (quantity > 0 && product?.id !== undefined) {
+			await removeFromCart(product.id);
+			const updatedCart = await getCart();
+			setCart(updatedCart);
+		}
+	};
 
 	if (loading) {
 		return (
@@ -109,12 +147,7 @@ const ProductCard: React.FC<ProductCardProps> = ({
 			>
 				<BottomSheetView>
 					<View style={styles.imageContainerBS}>
-						<Image
-							source={{
-								uri: 'https://ecqbyvpsbwrihodwwach.supabase.co/storage/v1/object/sign/subcategories_image/testProduct.png?token=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1cmwiOiJzdWJjYXRlZ29yaWVzX2ltYWdlL3Rlc3RQcm9kdWN0LnBuZyIsImlhdCI6MTczODI0NTE4MiwiZXhwIjoxNzY5NzgxMTgyfQ.-WpyqPGPhbS7IOOonoEaudAXTEKvH3POejnjV6VfhEc',
-							}}
-							style={styles.image}
-						/>
+						<Image source={{ uri: product?.image }} style={styles.image} />
 						<TouchableOpacity
 							onPress={() => setProductCardView(false)}
 							style={{
@@ -176,9 +209,30 @@ const ProductCard: React.FC<ProductCardProps> = ({
 						</View>
 						<View style={styles.addCartBlock}>
 							<Text style={styles.priceText}>{product?.price} ₽</Text>
-							<TouchableOpacity style={styles.addCartButton}>
-								<Text style={styles.buttonText}>Добавить в корзину</Text>
-							</TouchableOpacity>
+							{quantity === 0 ? (
+								<TouchableOpacity
+									style={styles.addCartButton}
+									onPress={handleAddToCart}
+								>
+									<Text style={styles.buttonText}>Добавить в корзину</Text>
+								</TouchableOpacity>
+							) : (
+								<View style={styles.quantityPicker}>
+									<TouchableOpacity
+										onPress={handleRemoveFromCart}
+										style={styles.quantityButton}
+									>
+										<Ionicons name='remove' size={24} color='#FF7269' />
+									</TouchableOpacity>
+									<Text style={styles.textQuantity}>{quantity}</Text>
+									<TouchableOpacity
+										onPress={handleAddToCart}
+										style={styles.quantityButton}
+									>
+										<Ionicons name='add' size={24} color='#FF7269' />
+									</TouchableOpacity>
+								</View>
+							)}
 						</View>
 					</View>
 				</BottomSheetView>
