@@ -22,17 +22,27 @@ import { subscribeToCartUpdates } from '../utils/cartEventEmitter';
 
 type Props = NativeStackScreenProps<RootStackParamList, 'Home'>;
 
-interface Category {
-	id: string;
-	title: string;
-	subcategories: SubCategories[] | null;
+interface AdditionalIcon {
+	type: string;
+	url: string;
 }
 
-interface SubCategories {
+interface SubCategory {
 	id: string;
-	title: string;
-	category_id: string;
-	image: string;
+	name: string;
+	advert: string | null;
+	image_link: string;
+	gradient_start: string;
+	gradient_end: string;
+	title_color: string;
+	additional_icons: AdditionalIcon[];
+}
+
+interface Category {
+	id: string;
+	name: string;
+	additional_icons: AdditionalIcon[];
+	categories: SubCategory[];
 }
 
 const Home: React.FC<Props> = ({ navigation }) => {
@@ -44,16 +54,18 @@ const Home: React.FC<Props> = ({ navigation }) => {
 	useEffect(() => {
 		const fetchCategories = async () => {
 			try {
-				const { data, error } = await supabase
-					.from('categories')
-					.select('id, title, subcategories (id, title, category_id, image)');
-				if (error) {
-					throw error;
+				const response = await fetch(
+					'http://192.168.1.72:8000/parser/get_category'
+				);
+				if (!response.ok) {
+					throw new Error(`HTTP error! Status: ${response.status}`);
 				}
+				const data: Category[] = await response.json();
+
 				setCategories(
-					(data ?? []).map(category => ({
+					data.map(category => ({
 						...category,
-						subcategories: category.subcategories ?? [],
+						subcategories: category.categories ?? [],
 					}))
 				);
 			} catch (error) {
@@ -100,7 +112,16 @@ const Home: React.FC<Props> = ({ navigation }) => {
 			<FlatList
 				data={subcategories}
 				renderItem={({ item }) => (
-					<SubCategories title={item.title} image={item.image} id={item.id} />
+					<SubCategories
+						name={item.name}
+						image_link={item.image_link}
+						id={item.id}
+						advert={null}
+						gradient_start={''}
+						gradient_end={''}
+						title_color={''}
+						additional_icons={[]}
+					/>
 				)}
 				keyExtractor={item => item.id}
 				numColumns={3}
@@ -110,18 +131,21 @@ const Home: React.FC<Props> = ({ navigation }) => {
 
 	type SubCategoriesProps = {
 		id: string;
-		title: string;
-		image: string;
+		name: string;
+		advert: string | null;
+		image_link: string;
+		gradient_start: string;
+		gradient_end: string;
+		title_color: string;
+		additional_icons: AdditionalIcon[];
 	};
-	const SubCategories = ({ title, image, id }: SubCategoriesProps) => (
+	const SubCategories = ({ name, image_link, id }: SubCategoriesProps) => (
 		<TouchableOpacity
 			style={styles.subcategoryBlock}
-			onPress={() =>
-				navigation.navigate('Categories', { subcategoryId: Number(id) })
-			}
+			onPress={() => navigation.navigate('Categories', { subcategoryId: id })}
 		>
-			<Text style={styles.title_sub}>{title}</Text>
-			<Image source={{ uri: image }} style={styles.image} />
+			<Text style={styles.title_sub}>{name}</Text>
+			<Image source={{ uri: image_link }} style={styles.image} />
 		</TouchableOpacity>
 	);
 
@@ -149,8 +173,8 @@ const Home: React.FC<Props> = ({ navigation }) => {
 						data={categories}
 						renderItem={({ item }) => (
 							<Categories
-								title={item.title}
-								subcategories={item.subcategories ?? []}
+								title={item.name}
+								subcategories={item.categories ?? []}
 							/>
 						)}
 						keyExtractor={item => item.id}

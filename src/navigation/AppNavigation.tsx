@@ -13,7 +13,7 @@ export type RootStackParamList = {
 	SignUp: undefined;
 	PasswordRecovery: undefined;
 	Home: undefined;
-	Categories: { subcategoryId: number };
+	Categories: { subcategoryId: string };
 	Basket: undefined;
 	CartButton: undefined;
 };

@@ -25,45 +25,63 @@ type Props = NativeStackScreenProps<RootStackParamList, 'Categories'> & {
 
 const Categories: React.FC<Props> = ({ navigation, route }) => {
 	const { subcategoryId } = route.params as unknown as {
-		subcategoryId: number;
+		subcategoryId: string;
 	};
 
-	interface SubCategories {
-		id: number;
-		title: string;
-		product: Product[];
+	interface Rating {
+		rating_average: number;
+		rates_count: number;
+	}
+
+	interface Prices {
+		regular: string;
+		discount: string;
+		cpd_promo_price: string | null;
+	}
+
+	interface Label {
+		label: string;
+		bg_color: string;
+		text_color: string;
+	}
+
+	interface ImageLinks {
+		small: string[];
+		normal: string[];
 	}
 
 	interface Product {
-		value: string;
-		image: string;
-		id: number;
-		title: string;
-		price: number;
+		plu: number;
+		name: string;
+		image_links: ImageLinks;
+		uom: string;
+		step: string;
+		rating: Rating;
+		promo: string | null;
+		prices: Prices;
+		labels: Label[];
+		property_clarification: string;
+		has_age_restriction: boolean;
+		stock_limit: string;
 	}
 
 	const [loading, setLoading] = useState<boolean>(true);
-	const [categories, setCategories] = useState<SubCategories[]>([]);
+	const [categories, setCategories] = useState<Product[]>([]);
 	const [cart, setCart] = useState<{ id: number; quantity: number }[]>([]);
 	const [productCardView, setProductCardView] = useState<boolean>(false);
 	const [productId, setProductId] = useState<number>();
-
 	useEffect(() => {
 		const fetchCategories = async () => {
 			try {
-				const { data, error } = await supabase
-					.from('subcategories')
-					.select('id, title, products(*)')
-					.eq('id', subcategoryId);
-				if (error) throw error;
-
-				setCategories(
-					data?.map((item: any) => ({
-						id: item.id,
-						title: item.title,
-						product: item.products,
-					})) ?? []
+				const response = await fetch(
+					`http://192.168.1.72:8000/parser/get_product/${subcategoryId}`
 				);
+				if (!response.ok) {
+					throw new Error(`HTTP error! Status: ${response.status}`);
+				}
+				const data: Product[] = await response.json();
+
+				setCategories(data) ?? [];
 			} catch (error) {
 				console.error('Ошибка при получении категорий:', error);
 			} finally {
@@ -210,26 +228,26 @@ const Categories: React.FC<Props> = ({ navigation, route }) => {
 							onPress={() => navigation.goBack()}
 							style={{ marginRight: 10 }}
 						/>
-						{categories.map(category => (
+						{/* {categories.map(category => (
 							<Text key={category.id} style={styles.title}>
 								{category.title}
 							</Text>
-						))}
+						))} */}
 					</View>
 
 					<FlatList
 						numColumns={3}
-						data={categories.flatMap(category => category.product)}
+						data={categories}
 						renderItem={({ item }) => (
 							<SubCategories
-								title={item.title}
-								price={item.price.toString()}
-								id={item.id}
-								image={item.image}
-								value={item.value}
+								title={item.name}
+								price={item.prices.regular.toString()}
+								id={item.plu}
+								image={item.image_links.small[0]}
+								value={item.property_clarification}
 							/>
 						)}
-						keyExtractor={item => item.id.toString()}
+						keyExtractor={item => item.plu.toString()}
 					/>
 					{productCardView && (
 						<ProductCard
