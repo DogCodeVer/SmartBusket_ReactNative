@@ -74,13 +74,12 @@ const Categories: React.FC<Props> = ({ navigation, route }) => {
 		const fetchCategories = async () => {
 			try {
 				const response = await fetch(
-					`http://192.168.1.72:8000/parser/get_product/${subcategoryId}`
+					`http://192.168.1.72:8000/parser/get_products/${subcategoryId}`
 				);
 				if (!response.ok) {
 					throw new Error(`HTTP error! Status: ${response.status}`);
 				}
 				const data: Product[] = await response.json();
-
 				setCategories(data) ?? [];
 			} catch (error) {
 				console.error('Ошибка при получении категорий:', error);

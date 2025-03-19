@@ -15,7 +15,7 @@ import supabase from '../config/supabaseConfig';
 import { addToCart, getCart, removeFromCart } from '../utils/cartStore';
 
 type ProductCardProps = {
-	productId: number | undefined;
+	productId: string | undefined;
 	setProductCardView: (value: boolean) => void;
 };
 
@@ -24,27 +24,51 @@ const ProductCard: React.FC<ProductCardProps> = ({
 	setProductCardView,
 }) => {
 	interface Product {
-		id: number;
-		title: string;
-		value: string;
-		price: string;
-		image: string;
-	}
-
-	interface ProductDesc {
-		BGU: {
-			calories: number;
-			proteins: number;
-			fats: number;
-			carbohydrates: number;
+		plu: number;
+		name: string;
+		image_links: {
+			small: string[];
+			normal: string[];
 		};
-		compound: string;
-		condition: string;
+		uom: string;
+		step: string;
+		rating: {
+			rating_average: number;
+			rates_count: number;
+		};
+		promo: null | string;
+		prices: {
+			value: string;
+			placement_type: string;
+		}[];
+		labels: {
+			label: string;
+			bg_color: string;
+			text_color: string;
+		}[];
+		property_clarification: string;
+		has_age_restriction: boolean;
+		stock_limit: string;
+		description: string;
+		description_md: string;
+		description_html: null | string;
+		nutrients: {
+			value: string;
+			text: string;
+		}[];
+		attributes: {
+			name: string;
+			value: string;
+			uom: string | null;
+		}[];
+		ingredients: string;
+		ingredients_html: null | string;
+		is_available: boolean;
+		is_various_manufacturers: boolean;
 	}
 
 	const [loading, setLoading] = useState<boolean>(true);
 	const [product, setProduct] = useState<Product>();
-	const [productDesc, setProductDesc] = useState<ProductDesc>();
 	const bottomSheetRef = useRef<BottomSheet>(null);
 	const [cart, setCart] = useState<{ id: number; quantity: number }[]>([]);
 
@@ -53,49 +77,33 @@ const ProductCard: React.FC<ProductCardProps> = ({
 	}, []);
 
 	// Загрузка данных продукта
-	useEffect(() => {
-		const fetchProduct = async () => {
-			try {
-				const { data, error } = await supabase
-					.from('products')
-					.select(
-						'id, title, value, price, image, product_desc(BGU, compound, condition)'
-					)
-					.eq('id', productId);
-				if (error) {
-					throw error;
-				}
-				if (data && data.length > 0) {
-					const item = data[0];
-					setProduct({
-						id: item.id,
-						title: item.title,
-						value: item.value,
-						price: item.price,
-						image: item.image,
-					});
-					const BGU = item.product_desc[0]?.BGU || {};
-					setProductDesc({
-						BGU: {
-							calories: parseFloat(BGU.calories) || 0,
-							proteins: parseFloat(BGU.proteins) || 0,
-							fats: parseFloat(BGU.fats) || 0,
-							carbohydrates: parseFloat(BGU.carbohydrates) || 0,
-						},
-						compound: item.product_desc[0]?.compound,
-						condition: item.product_desc[0]?.condition,
-					});
-				} else {
-					setProduct(undefined);
-				}
-			} catch (error) {
-				console.error('Error fetching product:', error);
-			} finally {
-				setLoading(false);
+	const fetchProduct = async (productId: string) => {
+		try {
+			const response = await fetch(
+				`http://192.168.1.72:8000/parser/get_product_info/${productId}`
+			);
+			if (!response.ok) {
+				throw new Error(`HTTP error! Status: ${response.status}`);
 			}
-		};
-		fetchProduct();
-	}, []);
+			const data = await response.json();
+
+			if (data) {
+				setProduct(data);
+			} else {
+				setProduct(undefined);
+			}
+		} catch (error) {
+			console.error('Error fetching product:', error);
+		} finally {
+			setLoading(false);
+		}
+	};
+
+	useEffect(() => {
+		if (productId !== undefined) {
+			fetchProduct(productId.toString());
+		}
+	}, [productId]);
 
 	// Загрузка корзины при монтировании и обновлении корзины
 	useEffect(() => {
@@ -106,25 +114,26 @@ const ProductCard: React.FC<ProductCardProps> = ({
 		loadCart();
 	}, []);
 
-	const quantity = cart.find(item => item.id === productId)?.quantity || 0;
+	const quantity =
+		cart.find(item => item.id === Number(productId))?.quantity || 0;
 
-	const handleAddToCart = async () => {
-		if (product?.id !== undefined) {
-			await addToCart({
-				id: product.id,
-				title: product.title,
-				price: product.price,
-				image: product.image,
-				value: product.value,
-			});
-			const updatedCart = await getCart();
-			setCart(updatedCart);
-		}
-	};
+	// const handleAddToCart = async () => {
+	// 	if (product?.id !== undefined) {
+	// 		await addToCart({
+	// 			id: product.id,
+	// 			title: product.title,
+	// 			price: product.price,
+	// 			image: product.image,
+	// 			value: product.value,
+	// 		});
+	// 		const updatedCart = await getCart();
+	// 		setCart(updatedCart);
+	// 	}
+	// };
 
 	const handleRemoveFromCart = async () => {
-		if (quantity > 0 && product?.id !== undefined) {
-			await removeFromCart(product.id);
+		if (quantity > 0 && product?.plu !== undefined) {
+			await removeFromCart(product.plu);
 			const updatedCart = await getCart();
 			setCart(updatedCart);
 		}
@@ -147,7 +156,10 @@ const ProductCard: React.FC<ProductCardProps> = ({
 			>
 				<BottomSheetView>
 					<View style={styles.imageContainerBS}>
-						<Image source={{ uri: product?.image }} style={styles.image} />
+						<Image
+							source={{ uri: product?.image_links.normal[0] }}
+							style={styles.image}
+						/>
 						<TouchableOpacity
 							onPress={() => setProductCardView(false)}
 							style={{
@@ -163,8 +175,10 @@ const ProductCard: React.FC<ProductCardProps> = ({
 						</TouchableOpacity>
 					</View>
 					<View style={styles.productInfo}>
-						<Text style={styles.textTilte}>{product?.title}</Text>
-						<Text style={styles.textTilteGrey}>{product?.value}</Text>
+						<Text style={styles.textTilte}>{product?.name}</Text>
+						<Text style={styles.textTilteGrey}>
+							{product?.property_clarification}
+						</Text>
 						<View style={styles.divideLine} />
 						<View>
 							<Text style={styles.textTitleSmall}>На 100 г</Text>
@@ -176,23 +190,25 @@ const ProductCard: React.FC<ProductCardProps> = ({
 							>
 								<View>
 									<Text style={styles.textBGU}>
-										{productDesc?.BGU.calories}
+										{product?.nutrients[3].value}
 									</Text>
 									<Text style={styles.textTitleSmall}>ккал</Text>
 								</View>
 								<View>
 									<Text style={styles.textBGU}>
-										{productDesc?.BGU.proteins}
+										{product?.nutrients[0].value}
 									</Text>
 									<Text style={styles.textTitleSmall}>белки</Text>
 								</View>
 								<View>
-									<Text style={styles.textBGU}>{productDesc?.BGU.fats}</Text>
+									<Text style={styles.textBGU}>
+										{product?.nutrients[1].value}
+									</Text>
 									<Text style={styles.textTitleSmall}>жиры</Text>
 								</View>
 								<View>
 									<Text style={styles.textBGU}>
-										{productDesc?.BGU.carbohydrates}
+										{product?.nutrients[2].value}
 									</Text>
 									<Text style={styles.textTitleSmall}>углеводы</Text>
 								</View>
@@ -201,18 +217,20 @@ const ProductCard: React.FC<ProductCardProps> = ({
 						</View>
 						<View style={{ marginBottom: 10 }}>
 							<Text style={styles.textTitleSmall}>Состав</Text>
-							<Text style={styles.textDefault}>{productDesc?.compound}</Text>
+							<Text style={styles.textDefault}>{product?.ingredients}</Text>
 						</View>
 						<View style={{ marginBottom: 20 }}>
 							<Text style={styles.textTitleSmall}>Срок и условия хранения</Text>
-							<Text style={styles.textDefault}>{productDesc?.condition}</Text>
+							<Text style={styles.textDefault}>
+								{product?.attributes[1].value}, {product?.attributes[2].value}
+							</Text>
 						</View>
 						<View style={styles.addCartBlock}>
-							<Text style={styles.priceText}>{product?.price} ₽</Text>
+							<Text style={styles.priceText}>{product?.prices[0].value} ₽</Text>
 							{quantity === 0 ? (
 								<TouchableOpacity
 									style={styles.addCartButton}
-									onPress={handleAddToCart}
+									// onPress={handleAddToCart}
 								>
 									<Text style={styles.buttonText}>Добавить в корзину</Text>
 								</TouchableOpacity>
@@ -226,7 +244,7 @@ const ProductCard: React.FC<ProductCardProps> = ({
 									</TouchableOpacity>
 									<Text style={styles.textQuantity}>{quantity}</Text>
 									<TouchableOpacity
-										onPress={handleAddToCart}
+										// onPress={handleAddToCart}
 										style={styles.quantityButton}
 									>
 										<Ionicons name='add' size={24} color='#FF7269' />
