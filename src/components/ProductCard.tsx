@@ -10,8 +10,6 @@ import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import BottomSheet, { BottomSheetView } from '@gorhom/bottom-sheet';
 import { Ionicons } from '@expo/vector-icons';
 import { styles } from '../styles/ProductCard';
-
-import supabase from '../config/supabaseConfig';
 import { addToCart, getCart, removeFromCart } from '../utils/cartStore';
 
 type ProductCardProps = {

@@ -85,4 +85,12 @@ export const styles = StyleSheet.create({
 		borderRadius: 16,
 		padding: 8,
 	},
+	subCategory: {
+		flexDirection: 'row',
+		justifyContent: 'space-between',
+		alignItems: 'center',
+	},
+	subCategory_item_unselect: {
+		backgroundColor: '#F7FAFF',
+	},
 });

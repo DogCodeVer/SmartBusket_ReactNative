@@ -28,41 +28,52 @@ const Categories: React.FC<Props> = ({ navigation, route }) => {
 		subcategoryId: string;
 	};
 
-	interface Rating {
-		rating_average: number;
-		rates_count: number;
-	}
-
-	interface Prices {
-		regular: string;
-		discount: string;
-		cpd_promo_price: string | null;
-	}
-
-	interface Label {
-		label: string;
-		bg_color: string;
-		text_color: string;
-	}
-
-	interface ImageLinks {
-		small: string[];
-		normal: string[];
-	}
-
 	interface Product {
 		plu: number;
 		name: string;
-		image_links: ImageLinks;
+		image_links: {
+			small: string[];
+			normal: string[];
+		};
 		uom: string;
 		step: string;
-		rating: Rating;
+		rating: {
+			rating_average: number;
+			rates_count: number;
+		};
 		promo: string | null;
-		prices: Prices;
-		labels: Label[];
+		prices: {
+			regular: string;
+			discount: string;
+			cpd_promo_price: string | null;
+		};
+		labels: {
+			label: string;
+			bg_color: string;
+			text_color: string;
+		}[];
 		property_clarification: string;
 		has_age_restriction: boolean;
 		stock_limit: string;
+	}
+	interface SubCategory {
+		id: string;
+		name: string;
+		description: string | null;
+		description_html: string | null;
+		image_link: string;
+		gradient_start: string;
+		gradient_end: string;
+		title_color: string;
+		advert: string | null;
+		categories_tags: {
+			id: string;
+			name: string;
+		}[];
+		additional_icons: {
+			type: string;
+			url: string;
+		}[];
 	}
 
 	const [loading, setLoading] = useState<boolean>(true);
@@ -70,8 +81,10 @@ const Categories: React.FC<Props> = ({ navigation, route }) => {
 	const [cart, setCart] = useState<{ id: number; quantity: number }[]>([]);
 	const [productCardView, setProductCardView] = useState<boolean>(false);
 	const [productId, setProductId] = useState<number>();
+	const [subCategory, setSubCategory] = useState<SubCategory>();
+
 	useEffect(() => {
-		const fetchCategories = async () => {
+		const fetchProduct = async () => {
 			try {
 				const response = await fetch(
 					`http://192.168.1.72:8000/parser/get_products/${subcategoryId}`
@@ -88,12 +101,29 @@ const Categories: React.FC<Props> = ({ navigation, route }) => {
 			}
 		};
 
+		const fetchSubCategory = async () => {
+			try {
+				const response = await fetch(
+					`http://192.168.1.72:8000/parser/get_category/get_sub_categories/${subcategoryId}`
+				);
+				if (!response.ok) {
+					throw new Error(`HTTP error! Status: ${response.status}`);
+				} else {
+					const data: SubCategory = await response.json();
+					setSubCategory(data);
+				}
+			} catch (error) {
+				console.error('Ошибка при получении подкатегории:', error);
+			}
+		};
+
 		const loadCart = async () => {
 			const storedCart = await getCart();
 			setCart(storedCart);
 		};
 
-		fetchCategories();
+		fetchProduct();
+		fetchSubCategory();
 		loadCart();
 
 		// Подписка на обновления корзины
@@ -232,6 +262,21 @@ const Categories: React.FC<Props> = ({ navigation, route }) => {
 								{category.title}
 							</Text>
 						))} */}
+					</View>
+					<View style={styles.subCategory}>
+						<TouchableOpacity style={{ paddingRight: 10 }}>
+							<Ionicons name='funnel-outline' size={20} color='black' />
+						</TouchableOpacity>
+						<FlatList
+							data={subCategory?.categories_tags}
+							renderItem={({ item }) => (
+								<TouchableOpacity style={styles.subCategory_item_unselect}>
+									<Text>{item.name}</Text>
+								</TouchableOpacity>
+							)}
+							keyExtractor={item => item.id}
+							horizontal={true}
+						/>
 					</View>
 
 					<FlatList

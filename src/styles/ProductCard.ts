@@ -32,9 +32,13 @@ export const styles = StyleSheet.create({
 		backgroundColor: '#F7FAFF',
 		borderTopLeftRadius: 20,
 		borderTopRightRadius: 20,
-		marginRight: 20,
-		marginLeft: 20,
-		marginTop: 20,
+		// marginRight: 20,
+		// marginLeft: 20,
+		// marginTop: 20,
+		padding: 15,
+		width: '100%', // Ширина контейнера
+		height: 370, // Можно задать фиксированную высоту или использовать 'flex' для адаптивности
+		position: 'relative', // Для размещения кнопки поверх изображения
 	},
 	divideLine: {
 		height: 1.5,
@@ -44,8 +48,9 @@ export const styles = StyleSheet.create({
 		marginVertical: 10,
 	},
 	image: {
-		width: '100%',
-		height: 350,
+		width: '100%', // Растягивает изображение по ширине контейнера
+		height: '100%', // Растягивает изображение по высоте контейнера
+		resizeMode: 'contain',
 	},
 	productInfo: {
 		backgroundColor: '#fff',
