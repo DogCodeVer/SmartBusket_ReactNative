@@ -89,8 +89,16 @@ export const styles = StyleSheet.create({
 		flexDirection: 'row',
 		justifyContent: 'space-between',
 		alignItems: 'center',
+		marginVertical: 8,
 	},
 	subCategory_item_unselect: {
 		backgroundColor: '#F7FAFF',
+		marginRight: 16,
+		borderRadius: 50,
+	},
+	subCategory_text_unselect: {
+		margin: 12,
+		fontWeight: '600',
+		fontSize: 16,
 	},
 });

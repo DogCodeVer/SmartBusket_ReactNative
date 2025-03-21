@@ -271,7 +271,9 @@ const Categories: React.FC<Props> = ({ navigation, route }) => {
 							data={subCategory?.categories_tags}
 							renderItem={({ item }) => (
 								<TouchableOpacity style={styles.subCategory_item_unselect}>
-									<Text>{item.name}</Text>
+									<Text style={styles.subCategory_text_unselect}>
+										{item.name}
+									</Text>
 								</TouchableOpacity>
 							)}
 							keyExtractor={item => item.id}
