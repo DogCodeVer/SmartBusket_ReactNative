@@ -32,7 +32,7 @@ const PasswordRecovery: React.FC<Props> = ({ navigation }) => {
 				value={email}
 			/>
 			<TouchableOpacity style={styles.button}>
-				<Text style={styles.buttonText}>Войти</Text>
+				<Text style={styles.buttonText}>Отправить ссылку</Text>
 			</TouchableOpacity>
 		</View>
 	);

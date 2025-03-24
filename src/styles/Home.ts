@@ -63,4 +63,11 @@ export const styles = StyleSheet.create({
 		padding: 8,
 		alignSelf: 'flex-start',
 	},
+	deliveryBox: {
+		marginBottom: 12,
+	},
+	deliveryAddress_box: {
+		flexDirection: 'row',
+		alignItems: 'center',
+	},
 });

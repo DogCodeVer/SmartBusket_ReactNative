@@ -154,6 +154,19 @@ const Home: React.FC<Props> = ({ navigation }) => {
 			<StatusBar barStyle={'dark-content'} backgroundColor='#fff' />
 			<SafeAreaProvider>
 				<SafeAreaView style={styles.container}>
+					<TouchableOpacity style={styles.deliveryBox}>
+						<Text style={{ fontSize: 12, fontWeight: '600', color: '#62666E' }}>
+							Куда доставить:
+						</Text>
+						<View style={styles.deliveryAddress_box}>
+							<Text
+								style={{ fontSize: 14, fontWeight: '700', color: '#3F3F3F' }}
+							>
+								Выбрать адрес
+							</Text>
+							<Ionicons name='chevron-down-outline' size={12} color='#000' />
+						</View>
+					</TouchableOpacity>
 					<View style={styles.searchbar}>
 						<Ionicons
 							name='search'

@@ -21,7 +21,7 @@ export const styles = StyleSheet.create({
 		borderColor: '#2D323A1A',
 		borderRadius: 12,
 		backgroundColor: '#fff',
-		shadowColor: '#FF7269',
+		shadowColor: '#3FBD00',
 		shadowOffset: { width: 0, height: 2 },
 		shadowOpacity: 0.2,
 		shadowRadius: 4,
@@ -33,7 +33,7 @@ export const styles = StyleSheet.create({
 	button: {
 		width: '100%',
 		height: 50,
-		backgroundColor: '#FF7269',
+		backgroundColor: '#3FBD00',
 		borderRadius: 100,
 		justifyContent: 'center',
 		alignItems: 'center',
@@ -52,10 +52,10 @@ export const styles = StyleSheet.create({
 	},
 	footerText: {
 		fontSize: 14,
-		color: '#FF7269',
+		color: '#3FBD00',
 		textDecorationLine: 'none',
 	},
 	inputFocused: {
-		borderColor: '#FF7269', // Цвет границы при фокусе
+		borderColor: '#3FBD00', // Цвет границы при фокусе
 	},
 });

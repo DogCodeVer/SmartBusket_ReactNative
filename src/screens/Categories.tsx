@@ -82,6 +82,7 @@ const Categories: React.FC<Props> = ({ navigation, route }) => {
 	const [productCardView, setProductCardView] = useState<boolean>(false);
 	const [productId, setProductId] = useState<number>();
 	const [subCategory, setSubCategory] = useState<SubCategory>();
+	const [categoryTitle, setCategoryTitle] = useState();
 
 	useEffect(() => {
 		const fetchProduct = async () => {
@@ -257,11 +258,7 @@ const Categories: React.FC<Props> = ({ navigation, route }) => {
 							onPress={() => navigation.goBack()}
 							style={{ marginRight: 10 }}
 						/>
-						{/* {categories.map(category => (
-							<Text key={category.id} style={styles.title}>
-								{category.title}
-							</Text>
-						))} */}
+						<Text style={styles.title}>{subCategory?.name}</Text>
 					</View>
 					<View style={styles.subCategory}>
 						<TouchableOpacity style={{ paddingRight: 10 }}>
