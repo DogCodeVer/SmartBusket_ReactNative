@@ -7,6 +7,7 @@ import PasswordRecovery from '../screens/PasswordRecovery';
 import Home from '../screens/Home';
 import Categories from '../screens/Categories';
 import Basket from '../screens/Basket';
+import AddAddress from '../screens/AddAddress';
 
 export type RootStackParamList = {
 	SignIn: undefined;
@@ -16,13 +17,14 @@ export type RootStackParamList = {
 	Categories: { subcategoryId: string };
 	Basket: undefined;
 	CartButton: undefined;
+	AddAddress: undefined;
 };
 
 const Stack = createNativeStackNavigator<RootStackParamList>();
 
 const AppNavigator: React.FC = () => (
 	<NavigationContainer>
-		<Stack.Navigator initialRouteName='SignIn'>
+		<Stack.Navigator initialRouteName='AddAddress'>
 			<Stack.Screen
 				name='SignIn'
 				component={SignIn}
@@ -51,6 +53,11 @@ const AppNavigator: React.FC = () => (
 			<Stack.Screen
 				name='Basket'
 				component={Basket}
+				options={{ headerShown: false }}
+			/>
+			<Stack.Screen
+				name='AddAddress'
+				component={AddAddress}
 				options={{ headerShown: false }}
 			/>
 		</Stack.Navigator>

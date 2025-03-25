@@ -13,7 +13,6 @@ import { StatusBar } from 'expo-status-bar';
 import { SafeAreaProvider, SafeAreaView } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
 import ProductCard from '../components/ProductCard';
-import supabase from '../config/supabaseConfig';
 import { styles } from '../styles/Categories';
 import { addToCart, removeFromCart, getCart } from '../utils/cartStore';
 import CartButton from '../components/CartButton';
