@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import {
 	View,
 	Text,
@@ -19,6 +19,8 @@ import { styles } from '../styles/Home';
 import CartButton from '../components/CartButton';
 import { getCart } from '../utils/cartStore';
 import { subscribeToCartUpdates } from '../utils/cartEventEmitter';
+import BottomSheet from '@gorhom/bottom-sheet';
+import BottomSheetComponent from '../components/selectAddress';
 
 type Props = NativeStackScreenProps<RootStackParamList, 'Home'>;
 
@@ -50,6 +52,7 @@ const Home: React.FC<Props> = ({ navigation }) => {
 	const [loading, setLoading] = useState<boolean>(true);
 	const [searchText, setSearchText] = useState('');
 	const [cartHasItems, setCartHasItems] = useState(false);
+	const bottomSheetRef = useRef<BottomSheet>(null);
 
 	useEffect(() => {
 		const fetchCategories = async () => {
@@ -154,7 +157,10 @@ const Home: React.FC<Props> = ({ navigation }) => {
 			<StatusBar barStyle={'dark-content'} backgroundColor='#fff' />
 			<SafeAreaProvider>
 				<SafeAreaView style={styles.container}>
-					<TouchableOpacity style={styles.deliveryBox}>
+					<TouchableOpacity
+						style={styles.deliveryBox}
+						onPress={() => bottomSheetRef.current?.expand()}
+					>
 						<Text style={{ fontSize: 12, fontWeight: '600', color: '#62666E' }}>
 							Куда доставить:
 						</Text>
@@ -195,6 +201,7 @@ const Home: React.FC<Props> = ({ navigation }) => {
 
 					{/* Показываем кнопку корзины только если в корзине есть товары */}
 					{cartHasItems && <CartButton />}
+					<BottomSheetComponent sheetRef={bottomSheetRef} />
 				</SafeAreaView>
 			</SafeAreaProvider>
 		</GestureHandlerRootView>

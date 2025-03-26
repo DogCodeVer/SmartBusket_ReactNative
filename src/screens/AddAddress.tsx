@@ -16,7 +16,7 @@ import { Ionicons } from '@expo/vector-icons';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import { styles } from '../styles/AddAddress';
 import * as Location from 'expo-location';
-import { saveAddress, getAddresses } from '../utils/addressSaved';
+import { addAddress, getAddresses } from '../utils/addressSaved';
 
 type Props = NativeStackScreenProps<RootStackParamList, 'AddAddress'>;
 
@@ -27,9 +27,11 @@ const AddAddress: React.FC<Props> = ({ navigation }) => {
 	const [location, setLocation] = useState<{ lat: number; lon: number } | null>(
 		null
 	);
-	const [addressByGeo, setAddressByGeo] = useState<string | null>(null);
 
-	console.log(getAddresses());
+	const loadAddresses = async () => {
+		const addresses = await getAddresses(); // Мы дожидаемся выполнения getAddresses()
+		console.log(addresses); // Теперь в консоли будет результат выполнения, а не сам промис
+	};
 
 	const fetchAddress = async () => {
 		const url =
@@ -181,7 +183,7 @@ const AddAddress: React.FC<Props> = ({ navigation }) => {
 
 					<TouchableOpacity
 						onPress={() => {
-							saveAddress(searchQuery), console.log(searchQuery);
+							addAddress(searchQuery), loadAddresses();
 						}}
 						style={styles.button}
 					>

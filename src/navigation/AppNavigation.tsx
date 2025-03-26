@@ -24,7 +24,7 @@ const Stack = createNativeStackNavigator<RootStackParamList>();
 
 const AppNavigator: React.FC = () => (
 	<NavigationContainer>
-		<Stack.Navigator initialRouteName='AddAddress'>
+		<Stack.Navigator initialRouteName='Home'>
 			<Stack.Screen
 				name='SignIn'
 				component={SignIn}
