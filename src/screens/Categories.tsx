@@ -17,6 +17,7 @@ import { styles } from '../styles/Categories';
 import { addToCart, removeFromCart, getCart } from '../utils/cartStore';
 import CartButton from '../components/CartButton';
 import { subscribeToCartUpdates } from '../utils/cartEventEmitter';
+import FilterCategory from '../components/FilterCategory';
 
 type Props = NativeStackScreenProps<RootStackParamList, 'Categories'> & {
 	id: number;
@@ -82,6 +83,7 @@ const Categories: React.FC<Props> = ({ navigation, route }) => {
 	const [productId, setProductId] = useState<number>();
 	const [subCategory, setSubCategory] = useState<SubCategory>();
 	const [categoryTitle, setCategoryTitle] = useState();
+	const [selectFilterView, setSelectFilterView] = useState<boolean>(false);
 
 	useEffect(() => {
 		const fetchProduct = async () => {
@@ -224,8 +226,8 @@ const Categories: React.FC<Props> = ({ navigation, route }) => {
 					</View>
 				) : (
 					<View style={styles.counterZero}>
-						<Text style={{ color: '#FF7269', fontWeight: '700', fontSize: 14 }}>
-							~{price} ₽
+						<Text style={{ color: '#3FBD00', fontWeight: '700', fontSize: 14 }}>
+							~{price.slice(0, -3)} ₽
 						</Text>
 						<TouchableOpacity
 							onPress={handleAddToCart}
@@ -234,7 +236,7 @@ const Categories: React.FC<Props> = ({ navigation, route }) => {
 							<Ionicons
 								name='add'
 								size={20}
-								color='#FF7269'
+								color='#3FBD00'
 								style={{ margin: 2 }}
 							/>
 						</TouchableOpacity>
@@ -260,7 +262,12 @@ const Categories: React.FC<Props> = ({ navigation, route }) => {
 						<Text style={styles.title}>{subCategory?.name}</Text>
 					</View>
 					<View style={styles.subCategory}>
-						<TouchableOpacity style={{ paddingRight: 10 }}>
+						<TouchableOpacity
+							style={{ paddingRight: 10 }}
+							onPress={() => {
+								setSelectFilterView(true);
+							}}
+						>
 							<Ionicons name='funnel-outline' size={20} color='black' />
 						</TouchableOpacity>
 						<FlatList
@@ -299,6 +306,9 @@ const Categories: React.FC<Props> = ({ navigation, route }) => {
 					)}
 					{/* Показываем кнопку корзины только если в ней есть товары */}
 					{cart.length > 0 && <CartButton />}
+					{selectFilterView && (
+						<FilterCategory setSelectFilterView={setSelectFilterView} />
+					)}
 				</SafeAreaView>
 			</SafeAreaProvider>
 		</GestureHandlerRootView>

@@ -11,7 +11,7 @@ export const styles = StyleSheet.create({
 		flexDirection: 'row',
 		justifyContent: 'space-between',
 		alignItems: 'center',
-		backgroundColor: '#FF7269',
+		backgroundColor: '#3FBD00',
 		borderRadius: 8,
 	},
 	text: { fontWeight: 700, fontSize: 16, color: '#fff' },

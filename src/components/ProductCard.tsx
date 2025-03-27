@@ -5,6 +5,8 @@ import {
 	Image,
 	TouchableOpacity,
 	ActivityIndicator,
+	Animated,
+	StatusBar,
 } from 'react-native';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import BottomSheet, { BottomSheetView } from '@gorhom/bottom-sheet';
@@ -69,10 +71,8 @@ const ProductCard: React.FC<ProductCardProps> = ({
 	const [product, setProduct] = useState<Product>();
 	const bottomSheetRef = useRef<BottomSheet>(null);
 	const [cart, setCart] = useState<{ id: number; quantity: number }[]>([]);
-
-	const handleSheetChanges = useCallback((index: number) => {
-		console.log('handleSheetChanges', index);
-	}, []);
+	const fadeAnim = useRef(new Animated.Value(0)).current;
+	const [isOpen, setIsOpen] = useState(true);
 
 	// Загрузка данных продукта
 	const fetchProduct = async (productId: string) => {
@@ -98,12 +98,9 @@ const ProductCard: React.FC<ProductCardProps> = ({
 	};
 
 	useEffect(() => {
-		if (productId !== undefined) {
-			fetchProduct(productId.toString());
-		}
-	}, [productId]);
+		fetchProduct(productId);
+	}, [fetchProduct]);
 
-	// Загрузка корзины при монтировании и обновлении корзины
 	useEffect(() => {
 		const loadCart = async () => {
 			const cartData = await getCart();
@@ -115,27 +112,40 @@ const ProductCard: React.FC<ProductCardProps> = ({
 	const quantity =
 		cart.find(item => item.id === Number(productId))?.quantity || 0;
 
-	// const handleAddToCart = async () => {
-	// 	if (product?.id !== undefined) {
-	// 		await addToCart({
-	// 			id: product.id,
-	// 			title: product.title,
-	// 			price: product.price,
-	// 			image: product.image,
-	// 			value: product.value,
-	// 		});
-	// 		const updatedCart = await getCart();
-	// 		setCart(updatedCart);
-	// 	}
-	// };
-
 	const handleRemoveFromCart = async () => {
-		if (quantity > 0 && product?.plu !== undefined) {
+		if (quantity > 0 && product?.plu) {
 			await removeFromCart(product.plu);
 			const updatedCart = await getCart();
 			setCart(updatedCart);
 		}
 	};
+
+	const handleSheetChanges = useCallback((index: number) => {
+		if (index === -1) hideOverlay();
+	}, []);
+
+	const showOverlay = useCallback(() => {
+		setProductCardView(true);
+		Animated.timing(fadeAnim, {
+			toValue: 1,
+			duration: 300,
+			useNativeDriver: true,
+		}).start();
+	}, [fadeAnim, setProductCardView]);
+
+	const hideOverlay = useCallback(() => {
+		Animated.timing(fadeAnim, {
+			toValue: 0,
+			duration: 300,
+			useNativeDriver: true,
+		}).start(() => setProductCardView(false));
+	}, [fadeAnim, setProductCardView]);
+
+	useEffect(() => {
+		showOverlay();
+		StatusBar.setBarStyle('light-content', true);
+		StatusBar.setBackgroundColor('rgba(0, 0, 0, 0.5)', true);
+	}, [showOverlay]);
 
 	if (loading) {
 		return (
@@ -147,9 +157,25 @@ const ProductCard: React.FC<ProductCardProps> = ({
 
 	return (
 		<GestureHandlerRootView style={styles.container}>
+			{isOpen && (
+				<Animated.View
+					style={{
+						position: 'absolute',
+						top: 0,
+						left: 0,
+						right: 0,
+						bottom: 0,
+						backgroundColor: 'rgba(0, 0, 0, 0.5)', // Затемнение
+						opacity: fadeAnim,
+					}}
+				/>
+			)}
 			<BottomSheet
 				ref={bottomSheetRef}
+				index={0} // Открыто по умолчанию
+				snapPoints={['80%']}
 				onChange={handleSheetChanges}
+				enablePanDownToClose={true}
 				style={styles.viewStyle}
 			>
 				<BottomSheetView>

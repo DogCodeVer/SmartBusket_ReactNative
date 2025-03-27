@@ -11,7 +11,6 @@ import {
 import { NativeStackScreenProps } from '@react-navigation/native-stack';
 import { RootStackParamList } from '../navigation/AppNavigation';
 import { FlatList, GestureHandlerRootView } from 'react-native-gesture-handler';
-import supabase from '../config/supabaseConfig';
 import { SafeAreaProvider, SafeAreaView } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
 
@@ -19,8 +18,8 @@ import { styles } from '../styles/Home';
 import CartButton from '../components/CartButton';
 import { getCart } from '../utils/cartStore';
 import { subscribeToCartUpdates } from '../utils/cartEventEmitter';
-import BottomSheet from '@gorhom/bottom-sheet';
-import BottomSheetComponent from '../components/selectAddress';
+import SelectAddress from '../components/SelectAddress';
+import { getSelectedAddress } from '../utils/addressSaved';
 
 type Props = NativeStackScreenProps<RootStackParamList, 'Home'>;
 
@@ -52,7 +51,8 @@ const Home: React.FC<Props> = ({ navigation }) => {
 	const [loading, setLoading] = useState<boolean>(true);
 	const [searchText, setSearchText] = useState('');
 	const [cartHasItems, setCartHasItems] = useState(false);
-	const bottomSheetRef = useRef<BottomSheet>(null);
+	const [selectAddressView, setSelectAddressView] = useState<boolean>(false);
+	const [selectedAddress, setSelectedAddress] = useState<string | null>(null);
 
 	useEffect(() => {
 		const fetchCategories = async () => {
@@ -98,6 +98,18 @@ const Home: React.FC<Props> = ({ navigation }) => {
 		return () => {
 			unsubscribe();
 		};
+	}, []);
+
+	useEffect(() => {
+		const fetchSelectedAddress = async () => {
+			try {
+				const address = await getSelectedAddress();
+				setSelectedAddress(address);
+			} catch (error) {
+				console.error('Error fetching selected address:', error);
+			}
+		};
+		fetchSelectedAddress();
 	}, []);
 
 	if (loading) {
@@ -159,7 +171,7 @@ const Home: React.FC<Props> = ({ navigation }) => {
 				<SafeAreaView style={styles.container}>
 					<TouchableOpacity
 						style={styles.deliveryBox}
-						onPress={() => bottomSheetRef.current?.expand()}
+						onPress={() => setSelectAddressView(true)}
 					>
 						<Text style={{ fontSize: 12, fontWeight: '600', color: '#62666E' }}>
 							Куда доставить:
@@ -168,7 +180,7 @@ const Home: React.FC<Props> = ({ navigation }) => {
 							<Text
 								style={{ fontSize: 14, fontWeight: '700', color: '#3F3F3F' }}
 							>
-								Выбрать адрес
+								{selectedAddress ?? 'Выберите адрес'}
 							</Text>
 							<Ionicons name='chevron-down-outline' size={12} color='#000' />
 						</View>
@@ -198,10 +210,10 @@ const Home: React.FC<Props> = ({ navigation }) => {
 						)}
 						keyExtractor={item => item.id}
 					/>
-
-					{/* Показываем кнопку корзины только если в корзине есть товары */}
 					{cartHasItems && <CartButton />}
-					<BottomSheetComponent sheetRef={bottomSheetRef} />
+					{selectAddressView && (
+						<SelectAddress setSelectAddressView={setSelectAddressView} />
+					)}
 				</SafeAreaView>
 			</SafeAreaProvider>
 		</GestureHandlerRootView>

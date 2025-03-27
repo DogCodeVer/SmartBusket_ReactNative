@@ -28,11 +28,6 @@ const AddAddress: React.FC<Props> = ({ navigation }) => {
 		null
 	);
 
-	const loadAddresses = async () => {
-		const addresses = await getAddresses(); // Мы дожидаемся выполнения getAddresses()
-		console.log(addresses); // Теперь в консоли будет результат выполнения, а не сам промис
-	};
-
 	const fetchAddress = async () => {
 		const url =
 			'http://suggestions.dadata.ru/suggestions/api/4_1/rs/suggest/address';
@@ -183,7 +178,7 @@ const AddAddress: React.FC<Props> = ({ navigation }) => {
 
 					<TouchableOpacity
 						onPress={() => {
-							addAddress(searchQuery), loadAddresses();
+							addAddress(searchQuery), navigation.navigate('Home');
 						}}
 						style={styles.button}
 					>

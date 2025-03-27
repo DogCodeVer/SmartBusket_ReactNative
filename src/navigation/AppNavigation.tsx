@@ -18,6 +18,7 @@ export type RootStackParamList = {
 	Basket: undefined;
 	CartButton: undefined;
 	AddAddress: undefined;
+	SelectAddress: undefined;
 };
 
 const Stack = createNativeStackNavigator<RootStackParamList>();

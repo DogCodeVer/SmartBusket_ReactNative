@@ -46,11 +46,13 @@ export const styles = StyleSheet.create({
 		flex: 1,
 		justifyContent: 'flex-end', // Прижимает изображение вниз
 		alignItems: 'center', // Выравнивает изображение по центру
-		backgroundColor: '#F7FAFF',
+		backgroundColor: '#FFFFFF',
 		borderRadius: 16,
 		paddingHorizontal: 10,
 		paddingTop: 16,
 		paddingBottom: 6,
+		borderWidth: 1,
+		borderColor: '#F7FAFF',
 	},
 
 	image: {
@@ -69,7 +71,7 @@ export const styles = StyleSheet.create({
 		padding: 8,
 	},
 	zeroButton: {
-		backgroundColor: '#FF726926',
+		backgroundColor: '#3FBD0026',
 		borderRadius: 50,
 	},
 	addRemoveButton: {
@@ -81,7 +83,7 @@ export const styles = StyleSheet.create({
 		flexDirection: 'row',
 		flex: 1,
 		justifyContent: 'space-between',
-		backgroundColor: '#FF7269',
+		backgroundColor: '#3FBD00',
 		borderRadius: 16,
 		padding: 8,
 	},
