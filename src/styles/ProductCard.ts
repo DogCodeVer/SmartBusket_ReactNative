@@ -29,7 +29,7 @@ export const styles = StyleSheet.create({
 
 	imageContainerBS: {
 		flexDirection: 'row',
-		backgroundColor: '#F7FAFF',
+		backgroundColor: '#fff',
 		borderTopLeftRadius: 20,
 		borderTopRightRadius: 20,
 		// marginRight: 20,
@@ -41,9 +41,9 @@ export const styles = StyleSheet.create({
 		position: 'relative', // Для размещения кнопки поверх изображения
 	},
 	divideLine: {
-		height: 1.5,
+		height: 1,
 
-		backgroundColor: '#878B93',
+		backgroundColor: '#878b9380',
 
 		marginVertical: 10,
 	},
@@ -74,7 +74,7 @@ export const styles = StyleSheet.create({
 		marginHorizontal: -24,
 		paddingHorizontal: 24,
 		paddingVertical: 16,
-		backgroundColor: '#FF7269',
+		backgroundColor: '#3FBD00',
 		alignItems: 'center',
 	},
 	addCartButton: {
@@ -114,7 +114,7 @@ export const styles = StyleSheet.create({
 		color: '#FFFFFF',
 	},
 	buttonText: {
-		color: '#FF7269',
+		color: '#3FBD00',
 		fontSize: 14,
 		fontWeight: '700',
 	},
@@ -129,13 +129,13 @@ export const styles = StyleSheet.create({
 	textQuantity: {
 		fontSize: 14,
 		fontWeight: 700,
-		color: '#FF7269',
+		color: '#3FBD00',
 		paddingHorizontal: 16,
 		paddingVertical: 12,
 	},
 	quantityButton: {
 		borderRadius: 32,
-		backgroundColor: '#FF726926',
+		backgroundColor: '#3FBD0026',
 		padding: 4,
 	},
 });

@@ -37,7 +37,7 @@ const CartButton: React.FC = () => {
 			onPress={() => navigation.navigate('Basket')}
 		>
 			<Text style={styles.text}>Корзина</Text>
-			<Text style={styles.text}>{cartTotal} ₽</Text>
+			<Text style={styles.text}>{Math.round(cartTotal)} ₽</Text>
 		</TouchableOpacity>
 	);
 };

@@ -188,14 +188,14 @@ const ProductCard: React.FC<ProductCardProps> = ({
 							onPress={() => setProductCardView(false)}
 							style={{
 								position: 'absolute',
-								right: 10,
-								top: 10,
-								backgroundColor: '#FF726926',
+								right: 15,
+								top: 15,
+								backgroundColor: '#62666E',
 								borderRadius: 50,
 								padding: 3,
 							}}
 						>
-							<Ionicons name='close' size={20} color='#FF7269' />
+							<Ionicons name='close' size={20} color='#F7FAFF' />
 						</TouchableOpacity>
 					</View>
 					<View style={styles.productInfo}>
@@ -264,14 +264,14 @@ const ProductCard: React.FC<ProductCardProps> = ({
 										onPress={handleRemoveFromCart}
 										style={styles.quantityButton}
 									>
-										<Ionicons name='remove' size={24} color='#FF7269' />
+										<Ionicons name='remove' size={24} color='#3FBD00' />
 									</TouchableOpacity>
 									<Text style={styles.textQuantity}>{quantity}</Text>
 									<TouchableOpacity
 										// onPress={handleAddToCart}
 										style={styles.quantityButton}
 									>
-										<Ionicons name='add' size={24} color='#FF7269' />
+										<Ionicons name='add' size={24} color='#3FBD00' />
 									</TouchableOpacity>
 								</View>
 							)}
