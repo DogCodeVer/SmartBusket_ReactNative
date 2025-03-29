@@ -99,7 +99,7 @@ const ProductCard: React.FC<ProductCardProps> = ({
 
 	useEffect(() => {
 		fetchProduct(productId);
-	}, [fetchProduct]);
+	}, []);
 
 	useEffect(() => {
 		const loadCart = async () => {
@@ -111,6 +111,24 @@ const ProductCard: React.FC<ProductCardProps> = ({
 
 	const quantity =
 		cart.find(item => item.id === Number(productId))?.quantity || 0;
+
+	const handleAddToCart = async ({
+		id,
+		title,
+		price,
+		image,
+		value,
+	}: {
+		id: number;
+		title: string;
+		price: string;
+		image: string;
+		value: string;
+	}) => {
+		await addToCart({ id, title, price, image, value });
+		const updatedCart = await getCart(); // Загружаем обновленные данные корзины
+		setCart(updatedCart);
+	};
 
 	const handleRemoveFromCart = async () => {
 		if (quantity > 0 && product?.plu) {
@@ -254,7 +272,15 @@ const ProductCard: React.FC<ProductCardProps> = ({
 							{quantity === 0 ? (
 								<TouchableOpacity
 									style={styles.addCartButton}
-									// onPress={handleAddToCart}
+									onPress={() =>
+										handleAddToCart({
+											id: product?.plu!,
+											title: product?.name ?? '',
+											price: product?.prices[0].value ?? '',
+											image: product?.image_links.normal[0] ?? '',
+											value: product?.property_clarification ?? '',
+										})
+									}
 								>
 									<Text style={styles.buttonText}>Добавить в корзину</Text>
 								</TouchableOpacity>

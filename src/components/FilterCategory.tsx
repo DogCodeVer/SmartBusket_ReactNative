@@ -83,7 +83,13 @@ const SelectAddress: React.FC<SelectAddressProps> = ({
 			>
 				<BottomSheetView>
 					<View style={{ paddingHorizontal: 16 }}>
-						<Text>Выберите адрес</Text>
+						<Text>Сортировать</Text>
+						<View>
+							<View>
+								<Text>По цене</Text>
+								<Text>Сначало дешевые продукты</Text>
+							</View>
+						</View>
 					</View>
 				</BottomSheetView>
 			</BottomSheet>

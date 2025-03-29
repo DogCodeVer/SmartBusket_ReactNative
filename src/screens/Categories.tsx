@@ -82,8 +82,8 @@ const Categories: React.FC<Props> = ({ navigation, route }) => {
 	const [productCardView, setProductCardView] = useState<boolean>(false);
 	const [productId, setProductId] = useState<number>();
 	const [subCategory, setSubCategory] = useState<SubCategory>();
-	const [categoryTitle, setCategoryTitle] = useState();
 	const [selectFilterView, setSelectFilterView] = useState<boolean>(false);
+	const [subCategorySelect, setSubCategorySelect] = useState<String>();
 
 	useEffect(() => {
 		const fetchProduct = async () => {
@@ -136,6 +136,27 @@ const Categories: React.FC<Props> = ({ navigation, route }) => {
 			unsubscribe();
 		};
 	}, []);
+
+	useEffect(() => {
+		if (!subCategorySelect || selectFilterView) return;
+		const fetchProductBySubcategory = async () => {
+			try {
+				const response = await fetch(
+					`http://192.168.1.72:8000/parser/get_products/${subCategorySelect}`
+				);
+				if (!response.ok) {
+					throw new Error(`HTTP error! Status: ${response.status}`);
+				}
+				const data: Product[] = await response.json();
+				setCategories(data) ?? [];
+			} catch (error) {
+				console.error('Ошибка при получении категорий:', error);
+			} finally {
+				setLoading(false);
+			}
+		};
+		fetchProductBySubcategory();
+	}, [subCategorySelect]);
 
 	if (loading) {
 		return (
@@ -262,18 +283,25 @@ const Categories: React.FC<Props> = ({ navigation, route }) => {
 						<Text style={styles.title}>{subCategory?.name}</Text>
 					</View>
 					<View style={styles.subCategory}>
-						<TouchableOpacity
+						{/* <TouchableOpacity
 							style={{ paddingRight: 10 }}
 							onPress={() => {
 								setSelectFilterView(true);
 							}}
 						>
 							<Ionicons name='funnel-outline' size={20} color='black' />
-						</TouchableOpacity>
+						</TouchableOpacity> */}
 						<FlatList
 							data={subCategory?.categories_tags}
 							renderItem={({ item }) => (
-								<TouchableOpacity style={styles.subCategory_item_unselect}>
+								<TouchableOpacity
+									style={styles.subCategory_item_unselect}
+									onPress={() => {
+										{
+											console.log(item.id), setSubCategorySelect(item.id);
+										}
+									}}
+								>
 									<Text style={styles.subCategory_text_unselect}>
 										{item.name}
 									</Text>
