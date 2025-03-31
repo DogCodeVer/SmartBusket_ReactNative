@@ -78,7 +78,7 @@ const ProductCard: React.FC<ProductCardProps> = ({
 	const fetchProduct = async (productId: string) => {
 		try {
 			const response = await fetch(
-				`http://192.168.1.72:8000/parser/get_product_info/${productId}`
+				`${process.env.EXPO_PUBLIC_FASTAPI_URL}/parser/get_product_info/${productId}`
 			);
 			if (!response.ok) {
 				throw new Error(`HTTP error! Status: ${response.status}`);

@@ -87,7 +87,7 @@ const AddAddress: React.FC<Props> = ({ navigation }) => {
 					headers: {
 						'Content-Type': 'application/json',
 						Accept: 'application/json',
-						Authorization: 'Token f496e4b5f37cec8eb4c3dfa832cdfcf97088eaa6',
+						Authorization: `Token ${process.env.EXPO_PUBLIC_DADATA_API_KEY}`,
 					},
 					body: JSON.stringify({ lat: location.lat, lon: location.lon }),
 				});

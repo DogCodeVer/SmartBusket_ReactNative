@@ -1,4 +1,4 @@
-import React, { useEffect, useRef, useState } from 'react';
+import React, { useEffect, useState, useCallback, useRef } from 'react';
 import {
 	View,
 	Text,
@@ -16,7 +16,7 @@ import { Ionicons } from '@expo/vector-icons';
 
 import { styles } from '../styles/Home';
 import CartButton from '../components/CartButton';
-import { getCart } from '../utils/cartStore';
+import { addToCart, getCart, removeFromCart } from '../utils/cartStore';
 import { subscribeToCartUpdates } from '../utils/cartEventEmitter';
 import SelectAddress from '../components/SelectAddress';
 import { getSelectedAddress } from '../utils/addressSaved';
@@ -46,81 +46,149 @@ interface Category {
 	categories: SubCategory[];
 }
 
+interface SearchResult {
+	plu: number;
+	name: string;
+	image_links: {
+		small: string[];
+		normal: string[];
+	};
+	uom: string;
+	step: string;
+	rating: {
+		rating_average: number;
+		rates_count: number;
+	};
+	promo: null | string;
+	prices: {
+		regular: string;
+		discount: string | null;
+		cpd_promo_price: string | null;
+	};
+	labels:
+		| {
+				label: string;
+				icon_url: string | null;
+				bg_color: string;
+				text_color: string;
+		  }[]
+		| null;
+	property_clarification: string;
+	has_age_restriction: boolean;
+	stock_limit: string;
+}
+
 const Home: React.FC<Props> = ({ navigation }) => {
 	const [categories, setCategories] = useState<Category[]>([]);
 	const [loading, setLoading] = useState<boolean>(true);
 	const [searchText, setSearchText] = useState('');
+	const [cart, setCart] = useState<{ id: number; quantity: number }[]>([]);
 	const [cartHasItems, setCartHasItems] = useState(false);
 	const [selectAddressView, setSelectAddressView] = useState<boolean>(false);
 	const [selectedAddress, setSelectedAddress] = useState<string | null>(null);
+	const [searchResults, setSearchResults] = useState<SearchResult[]>([]);
+	const [searchLoading, setSearchLoading] = useState<boolean>(false);
+
+	const isMounted = useRef(true);
 
 	useEffect(() => {
-		const fetchCategories = async () => {
-			try {
-				const response = await fetch(
-					'http://192.168.1.72:8000/parser/get_category'
-				);
-				if (!response.ok) {
-					throw new Error(`HTTP error! Status: ${response.status}`);
-				}
-				const data: Category[] = await response.json();
-
-				setCategories(
-					data.map(category => ({
-						...category,
-						subcategories: category.categories ?? [],
-					}))
-				);
-			} catch (error) {
-				console.error('Error fetching categories:', error);
-			} finally {
-				setLoading(false);
-			}
+		isMounted.current = true;
+		return () => {
+			isMounted.current = false;
 		};
-
-		fetchCategories();
 	}, []);
 
-	// Функция проверки корзины
-	const checkCart = async () => {
-		const cart = await getCart();
-		setCartHasItems(cart.length > 0);
-	};
+	const fetchCategories = useCallback(async () => {
+		try {
+			const response = await fetch(
+				`${process.env.EXPO_PUBLIC_FASTAPI_URL}/parser/get_category`
+			);
+			if (!response.ok) {
+				throw new Error(`HTTP error! Status: ${response.status}`);
+			}
+			const data: Category[] = await response.json();
+
+			if (isMounted.current) {
+				setCategories(data);
+			}
+		} catch (error) {
+			console.error('Error fetching categories:', error);
+		} finally {
+			if (isMounted.current) setLoading(false);
+		}
+	}, []);
 
 	useEffect(() => {
-		// Проверяем корзину при загрузке
+		fetchCategories();
+	}, [fetchCategories]);
+
+	const checkCart = useCallback(async () => {
+		const cart = await getCart();
+		if (isMounted.current) {
+			setCartHasItems(cart.length > 0);
+		}
+	}, []);
+
+	useEffect(() => {
 		checkCart();
-
-		// Подписываемся на обновления корзины
 		const unsubscribe = subscribeToCartUpdates(checkCart);
-
-		// Отписываемся при размонтировании компонента
 		return () => {
 			unsubscribe();
 		};
+	}, [checkCart]);
+
+	const fetchSelectedAddress = useCallback(async () => {
+		try {
+			const address = await getSelectedAddress();
+			if (isMounted.current) {
+				setSelectedAddress(address);
+			}
+		} catch (error) {
+			console.error('Error fetching selected address:', error);
+		}
 	}, []);
 
 	useEffect(() => {
-		const fetchSelectedAddress = async () => {
-			try {
-				const address = await getSelectedAddress();
-				setSelectedAddress(address);
-			} catch (error) {
-				console.error('Error fetching selected address:', error);
-			}
-		};
 		fetchSelectedAddress();
-	}, []);
+	}, [fetchSelectedAddress]);
 
-	if (loading) {
-		return (
-			<View style={styles.loadingContainer}>
-				<ActivityIndicator size='large' color='#0000ff' />
-			</View>
-		);
-	}
+	const fetchSearchResults = useCallback(async () => {
+		if (searchText.trim().length === 0) {
+			setSearchResults([]);
+			return;
+		}
 
-	type CategoriesProps = { title: string; subcategories: SubCategoriesProps[] };
+		setSearchLoading(true);
+		try {
+			const response = await fetch(
+				`${process.env.EXPO_PUBLIC_FASTAPI_URL}/parser/search/${searchText}`
+			);
+			if (!response.ok) {
+				throw new Error(`HTTP error! Status: ${response.status}`);
+			}
+			const data: SearchResult[] = await response.json();
+			if (isMounted.current) {
+				setSearchResults(data);
+			}
+		} catch (error) {
+			console.error('Error fetching search results:', error);
+		} finally {
+			if (isMounted.current) setSearchLoading(false);
+		}
+	}, [searchText]);
+
+	useEffect(() => {
+		const delayDebounceFn = setTimeout(() => {
+			fetchSearchResults();
+		}, 500);
+
+		return () => clearTimeout(delayDebounceFn);
+	}, [fetchSearchResults]);
+
+	type CategoriesProps = {
+		title: string;
+		subcategories: SubCategoriesProps[];
+	};
 	const Categories = ({ title, subcategories }: CategoriesProps) => (
 		<View style={styles.categoryBlock}>
 			<Text style={styles.title}>{title}</Text>
@@ -164,6 +232,87 @@ const Home: React.FC<Props> = ({ navigation }) => {
 		</TouchableOpacity>
 	);
 
+	// Карточки товаров
+	const ProductView = ({
+		title,
+		price,
+		id,
+		image,
+		value,
+	}: {
+		id: number;
+		value: string;
+		title: string;
+		price: string;
+		image: string;
+	}) => {
+		return (
+			<View
+				style={{
+					width: '33%',
+					paddingTop: 10,
+					paddingRight: 10,
+					justifyContent: 'space-evenly',
+				}}
+			>
+				<TouchableOpacity
+				// onPress={() => {
+				// 	setProductCardView(true);
+				// 	setProductId(id);
+				// }}
+				>
+					<View
+						style={{
+							flex: 1,
+							justifyContent: 'flex-end', // Прижимает изображение вниз
+							alignItems: 'center', // Выравнивает изображение по центру
+							backgroundColor: '#FFFFFF',
+							borderRadius: 16,
+							paddingHorizontal: 10,
+							paddingTop: 16,
+							paddingBottom: 6,
+							borderWidth: 1,
+							borderColor: '#F7FAFF',
+						}}
+					>
+						<Image
+							source={{ uri: image }}
+							style={{
+								width: 90,
+								height: 90,
+								resizeMode: 'contain', // Чтобы изображение сохраняло пропорции
+							}}
+						/>
+					</View>
+					<Text
+						style={{
+							flex: 1, // Занимает доступное пространство
+							justifyContent: 'center', // Центрирует текст
+							textAlign: 'left',
+							fontSize: 12,
+							fontWeight: '700',
+							paddingTop: 4,
+						}}
+						numberOfLines={1}
+						ellipsizeMode='tail'
+					>
+						{title}
+					</Text>
+					<Text
+						style={{
+							color: '#878B93',
+							fontWeight: '700',
+							fontSize: 12,
+							paddingVertical: 4,
+						}}
+					>
+						{value}
+					</Text>
+				</TouchableOpacity>
+			</View>
+		);
+	};
+
 	return (
 		<GestureHandlerRootView>
 			<StatusBar barStyle={'dark-content'} backgroundColor='#fff' />
@@ -201,15 +350,28 @@ const Home: React.FC<Props> = ({ navigation }) => {
 						/>
 					</View>
 					<FlatList
-						data={categories}
-						renderItem={({ item }) => (
-							<Categories
-								title={item.name}
-								subcategories={item.categories ?? []}
-							/>
-						)}
-						keyExtractor={item => item.id}
+						key={searchResults.length > 0 ? 'search' : 'categories'}
+						data={searchResults.length > 0 ? searchResults : categories}
+						renderItem={({ item }) =>
+							searchResults.length > 0 ? (
+								<ProductView
+									title={item.name}
+									price={item.prices.regular.toString()}
+									id={item.plu}
+									image={item.image_links.small[0]}
+									value={item.property_clarification}
+								/>
+							) : (
+								<Categories
+									title={item.name}
+									subcategories={item.categories ?? []}
+								/>
+							)
+						}
+						keyExtractor={item => item.id ?? item.plu.toString()}
+						numColumns={searchResults.length > 0 ? 3 : 1}
 					/>
+
 					{cartHasItems && <CartButton />}
 					{selectAddressView && (
 						<SelectAddress setSelectAddressView={setSelectAddressView} />

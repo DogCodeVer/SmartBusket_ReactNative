@@ -89,7 +89,7 @@ const Categories: React.FC<Props> = ({ navigation, route }) => {
 		const fetchProduct = async () => {
 			try {
 				const response = await fetch(
-					`http://192.168.1.72:8000/parser/get_products/${subcategoryId}`
+					`${process.env.EXPO_PUBLIC_FASTAPI_URL}/parser/get_products/${subcategoryId}`
 				);
 				if (!response.ok) {
 					throw new Error(`HTTP error! Status: ${response.status}`);
@@ -106,7 +106,7 @@ const Categories: React.FC<Props> = ({ navigation, route }) => {
 		const fetchSubCategory = async () => {
 			try {
 				const response = await fetch(
-					`http://192.168.1.72:8000/parser/get_category/get_sub_categories/${subcategoryId}`
+					`${process.env.EXPO_PUBLIC_FASTAPI_URL}/parser/get_category/get_sub_categories/${subcategoryId}`
 				);
 				if (!response.ok) {
 					throw new Error(`HTTP error! Status: ${response.status}`);
@@ -142,7 +142,7 @@ const Categories: React.FC<Props> = ({ navigation, route }) => {
 		const fetchProductBySubcategory = async () => {
 			try {
 				const response = await fetch(
-					`http://192.168.1.72:8000/parser/get_products/${subCategorySelect}`
+					`${process.env.EXPO_PUBLIC_FASTAPI_URL}/parser/get_products/${subCategorySelect}`
 				);
 				if (!response.ok) {
 					throw new Error(`HTTP error! Status: ${response.status}`);
