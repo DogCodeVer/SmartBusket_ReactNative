@@ -70,4 +70,33 @@ export const styles = StyleSheet.create({
 		flexDirection: 'row',
 		alignItems: 'center',
 	},
+
+	counterNotZero: {
+		maxHeight: 40,
+		flexDirection: 'row',
+		flex: 1,
+		justifyContent: 'space-between',
+		backgroundColor: '#3FBD00',
+		borderRadius: 16,
+		padding: 8,
+	},
+
+	addRemoveButton: {
+		backgroundColor: '#FFFFFF26',
+		borderRadius: 50,
+	},
+	counterZero: {
+		maxHeight: 40,
+		flexDirection: 'row',
+		flex: 1,
+		justifyContent: 'space-evenly',
+		alignItems: 'center',
+		backgroundColor: '#2D323A0D',
+		borderRadius: 16,
+		padding: 8,
+	},
+	zeroButton: {
+		backgroundColor: '#3FBD0026',
+		borderRadius: 50,
+	},
 });

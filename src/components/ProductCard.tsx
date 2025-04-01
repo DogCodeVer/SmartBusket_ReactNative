@@ -268,7 +268,9 @@ const ProductCard: React.FC<ProductCardProps> = ({
 							</Text>
 						</View>
 						<View style={styles.addCartBlock}>
-							<Text style={styles.priceText}>{product?.prices[0].value} ₽</Text>
+							<Text style={styles.priceText}>
+								{Math.round(product?.prices[0].value)} ₽
+							</Text>
 							{quantity === 0 ? (
 								<TouchableOpacity
 									style={styles.addCartButton}

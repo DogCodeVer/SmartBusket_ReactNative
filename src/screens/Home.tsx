@@ -20,6 +20,7 @@ import { addToCart, getCart, removeFromCart } from '../utils/cartStore';
 import { subscribeToCartUpdates } from '../utils/cartEventEmitter';
 import SelectAddress from '../components/SelectAddress';
 import { getSelectedAddress } from '../utils/addressSaved';
+import ProductCard from '../components/ProductCard';
 
 type Props = NativeStackScreenProps<RootStackParamList, 'Home'>;
 
@@ -83,11 +84,12 @@ const Home: React.FC<Props> = ({ navigation }) => {
 	const [loading, setLoading] = useState<boolean>(true);
 	const [searchText, setSearchText] = useState('');
 	const [cart, setCart] = useState<{ id: number; quantity: number }[]>([]);
-	const [cartHasItems, setCartHasItems] = useState(false);
 	const [selectAddressView, setSelectAddressView] = useState<boolean>(false);
 	const [selectedAddress, setSelectedAddress] = useState<string | null>(null);
 	const [searchResults, setSearchResults] = useState<SearchResult[]>([]);
 	const [searchLoading, setSearchLoading] = useState<boolean>(false);
+	const [productCardView, setProductCardView] = useState<boolean>(false);
+	const [productId, setProductId] = useState<number>();
 
 	const isMounted = useRef(true);
 
@@ -125,7 +127,7 @@ const Home: React.FC<Props> = ({ navigation }) => {
 	const checkCart = useCallback(async () => {
 		const cart = await getCart();
 		if (isMounted.current) {
-			setCartHasItems(cart.length > 0);
+			setCart(cart);
 		}
 	}, []);
 
@@ -246,6 +248,22 @@ const Home: React.FC<Props> = ({ navigation }) => {
 		price: string;
 		image: string;
 	}) => {
+		const quantity = cart.find(item => item.id === id)?.quantity || 0;
+
+		const handleAddToCart = async () => {
+			await addToCart({ id, title, price, image, value });
+			const updatedCart = await getCart(); // Загружаем обновленные данные корзины
+			setCart(updatedCart);
+		};
+
+		const handleRemoveFromCart = async () => {
+			if (quantity > 0) {
+				await removeFromCart(id);
+				const updatedCart = await getCart(); // Загружаем обновленные данные корзины
+				setCart(updatedCart);
+			}
+		};
+
 		return (
 			<View
 				style={{
@@ -256,10 +274,10 @@ const Home: React.FC<Props> = ({ navigation }) => {
 				}}
 			>
 				<TouchableOpacity
-				// onPress={() => {
-				// 	setProductCardView(true);
-				// 	setProductId(id);
-				// }}
+					onPress={() => {
+						setProductCardView(true);
+						setProductId(id);
+					}}
 				>
 					<View
 						style={{
@@ -309,6 +327,52 @@ const Home: React.FC<Props> = ({ navigation }) => {
 						{value}
 					</Text>
 				</TouchableOpacity>
+				{quantity > 0 ? (
+					<View style={styles.counterNotZero}>
+						<TouchableOpacity
+							onPress={handleRemoveFromCart}
+							style={styles.addRemoveButton}
+						>
+							<Ionicons
+								name='remove'
+								size={20}
+								color='#fff'
+								style={{ margin: 2 }}
+							/>
+						</TouchableOpacity>
+						<Text style={{ color: '#FFFFFF', fontWeight: '700', fontSize: 14 }}>
+							{quantity}
+						</Text>
+						<TouchableOpacity
+							onPress={handleAddToCart}
+							style={styles.addRemoveButton}
+						>
+							<Ionicons
+								name='add'
+								size={20}
+								color='#fff'
+								style={{ margin: 2 }}
+							/>
+						</TouchableOpacity>
+					</View>
+				) : (
+					<View style={styles.counterZero}>
+						<Text style={{ color: '#3FBD00', fontWeight: '700', fontSize: 14 }}>
+							~{price.slice(0, -3)} ₽
+						</Text>
+						<TouchableOpacity
+							onPress={handleAddToCart}
+							style={styles.zeroButton}
+						>
+							<Ionicons
+								name='add'
+								size={20}
+								color='#3FBD00'
+								style={{ margin: 2 }}
+							/>
+						</TouchableOpacity>
+					</View>
+				)}
 			</View>
 		);
 	};
@@ -371,8 +435,13 @@ const Home: React.FC<Props> = ({ navigation }) => {
 						keyExtractor={item => item.id ?? item.plu.toString()}
 						numColumns={searchResults.length > 0 ? 3 : 1}
 					/>
-
-					{cartHasItems && <CartButton />}
+					{productCardView && (
+						<ProductCard
+							productId={productId}
+							setProductCardView={setProductCardView}
+						/>
+					)}
+					{cart.length > 0 && <CartButton />}
 					{selectAddressView && (
 						<SelectAddress setSelectAddressView={setSelectAddressView} />
 					)}
