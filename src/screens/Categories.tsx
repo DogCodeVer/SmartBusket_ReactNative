@@ -18,6 +18,7 @@ import { addToCart, removeFromCart, getCart } from '../utils/cartStore';
 import CartButton from '../components/CartButton';
 import { subscribeToCartUpdates } from '../utils/cartEventEmitter';
 import FilterCategory from '../components/FilterCategory';
+import Constants from 'expo-constants';
 
 type Props = NativeStackScreenProps<RootStackParamList, 'Categories'> & {
 	id: number;
@@ -89,7 +90,7 @@ const Categories: React.FC<Props> = ({ navigation, route }) => {
 		const fetchProduct = async () => {
 			try {
 				const response = await fetch(
-					`${process.env.EXPO_PUBLIC_FASTAPI_URL}/parser/get_products/${subcategoryId}`
+					`${Constants.expoConfig.extra.fastApiUrl}/parser/get_products/${subcategoryId}`
 				);
 				if (!response.ok) {
 					throw new Error(`HTTP error! Status: ${response.status}`);
@@ -106,7 +107,7 @@ const Categories: React.FC<Props> = ({ navigation, route }) => {
 		const fetchSubCategory = async () => {
 			try {
 				const response = await fetch(
-					`${process.env.EXPO_PUBLIC_FASTAPI_URL}/parser/get_category/get_sub_categories/${subcategoryId}`
+					`${Constants.expoConfig.extra.fastApiUrl}/parser/get_category/get_sub_categories/${subcategoryId}`
 				);
 				if (!response.ok) {
 					throw new Error(`HTTP error! Status: ${response.status}`);
@@ -142,7 +143,7 @@ const Categories: React.FC<Props> = ({ navigation, route }) => {
 		const fetchProductBySubcategory = async () => {
 			try {
 				const response = await fetch(
-					`${process.env.EXPO_PUBLIC_FASTAPI_URL}/parser/get_products/${subCategorySelect}`
+					`${Constants.expoConfig.extra.fastApiUrl}/parser/get_products/${subCategorySelect}`
 				);
 				if (!response.ok) {
 					throw new Error(`HTTP error! Status: ${response.status}`);

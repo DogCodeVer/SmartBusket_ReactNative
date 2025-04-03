@@ -17,6 +17,7 @@ import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import { styles } from '../styles/AddAddress';
 import * as Location from 'expo-location';
 import { addAddress, getAddresses } from '../utils/addressSaved';
+import Constants from 'expo-constants';
 
 type Props = NativeStackScreenProps<RootStackParamList, 'AddAddress'>;
 
@@ -87,7 +88,7 @@ const AddAddress: React.FC<Props> = ({ navigation }) => {
 					headers: {
 						'Content-Type': 'application/json',
 						Accept: 'application/json',
-						Authorization: `Token ${process.env.EXPO_PUBLIC_DADATA_API_KEY}`,
+						Authorization: `Token ${Constants.expoConfig.extra.dadataApiKey}`,
 					},
 					body: JSON.stringify({ lat: location.lat, lon: location.lon }),
 				});

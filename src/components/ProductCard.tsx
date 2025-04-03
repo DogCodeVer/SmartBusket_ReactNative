@@ -13,6 +13,7 @@ import BottomSheet, { BottomSheetView } from '@gorhom/bottom-sheet';
 import { Ionicons } from '@expo/vector-icons';
 import { styles } from '../styles/ProductCard';
 import { addToCart, getCart, removeFromCart } from '../utils/cartStore';
+import Constants from 'expo-constants';
 
 type ProductCardProps = {
 	productId: string | undefined;
@@ -78,7 +79,7 @@ const ProductCard: React.FC<ProductCardProps> = ({
 	const fetchProduct = async (productId: string) => {
 		try {
 			const response = await fetch(
-				`${process.env.EXPO_PUBLIC_FASTAPI_URL}/parser/get_product_info/${productId}`
+				`${Constants.expoConfig.extra.fastApiUrl}/parser/get_product_info/${productId}`
 			);
 			if (!response.ok) {
 				throw new Error(`HTTP error! Status: ${response.status}`);

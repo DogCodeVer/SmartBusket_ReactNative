@@ -21,6 +21,7 @@ import { subscribeToCartUpdates } from '../utils/cartEventEmitter';
 import SelectAddress from '../components/SelectAddress';
 import { getSelectedAddress } from '../utils/addressSaved';
 import ProductCard from '../components/ProductCard';
+import Constants from 'expo-constants';
 
 type Props = NativeStackScreenProps<RootStackParamList, 'Home'>;
 
@@ -103,7 +104,7 @@ const Home: React.FC<Props> = ({ navigation }) => {
 	const fetchCategories = useCallback(async () => {
 		try {
 			const response = await fetch(
-				`${process.env.EXPO_PUBLIC_FASTAPI_URL}/parser/get_category`
+				`${Constants.expoConfig.extra.fastApiUrl}/parser/get_category`
 			);
 			if (!response.ok) {
 				throw new Error(`HTTP error! Status: ${response.status}`);
@@ -163,7 +164,7 @@ const Home: React.FC<Props> = ({ navigation }) => {
 		setSearchLoading(true);
 		try {
 			const response = await fetch(
-				`${process.env.EXPO_PUBLIC_FASTAPI_URL}/parser/search/${searchText}`
+				`${Constants.expoConfig.extra.fastApiUrl}/parser/search/${searchText}`
 			);
 			if (!response.ok) {
 				throw new Error(`HTTP error! Status: ${response.status}`);
