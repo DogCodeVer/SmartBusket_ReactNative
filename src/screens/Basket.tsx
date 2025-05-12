@@ -23,6 +23,7 @@ const Basket: React.FC<Props> = ({ navigation }) => {
 	>([]);
 	const [totalPrice, setTotalPrice] = useState<number>(0);
 	const [selectedAddress, setSelectedAddress] = useState<string | null>(null);
+	const [logoShopURL, setLogoShopURL] = useState<String>('');
 
 	// Функция загрузки товаров из корзины
 	const fetchCart = async () => {
@@ -68,6 +69,34 @@ const Basket: React.FC<Props> = ({ navigation }) => {
 		fetchSelectedAddress();
 	}, []);
 
+	useEffect(() => {
+		const getStoreLogo = () => {
+			const min = 1;
+			const max = 3;
+			const randomNumber = Math.floor(Math.random() * (max - min + 1)) + min;
+
+			switch (randomNumber) {
+				case 1:
+					setLogoShopURL(
+						'https://upload.wikimedia.org/wikipedia/commons/thumb/1/11/Magnit_logo.png/800px-Magnit_logo.png'
+					);
+					break;
+				case 2:
+					setLogoShopURL(
+						'https://upload.wikimedia.org/wikipedia/ru/4/4a/Pyaterochka_2020.svg'
+					);
+					break;
+				case 3:
+					setLogoShopURL(
+						'https://upload.wikimedia.org/wikipedia/commons/thumb/9/94/%D0%9B%D0%95%D0%9D%D0%A2%D0%90_%D0%BB%D0%BE%D0%B3%D0%BE.jpg/1024px-%D0%9B%D0%95%D0%9D%D0%A2%D0%90_%D0%BB%D0%BE%D0%B3%D0%BE.jpg?20210801083424'
+					);
+					break;
+			}
+		};
+
+		getStoreLogo();
+	}, []);
+
 	return (
 		<SafeAreaView style={{ flex: 1, backgroundColor: '#ffffff' }}>
 			<View style={styles.container}>
@@ -90,7 +119,7 @@ const Basket: React.FC<Props> = ({ navigation }) => {
 					<View style={styles.blockInfoShop}>
 						<Image
 							source={{
-								uri: 'https://upload.wikimedia.org/wikipedia/commons/thumb/1/11/Magnit_logo.png/800px-Magnit_logo.png',
+								uri: logoShopURL,
 							}}
 							style={styles.shopImage}
 						/>
